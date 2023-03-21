@@ -25,7 +25,7 @@ const {/*  clear, */ debug } = flags;
 
 	debug && log(flags);
 
-	if (input.option('validate')) {
+	if (input.includes('validate')) {
 		const validating = new Promise((resolve, reject) => {
 			resolve(flags.validate = true);
 			reject('Not a Success!')

@@ -7,13 +7,17 @@
  * @author Alexandra F. Vega <https://github.com/AlexVYard/>
  */
 
+// Option* validat = app.add_flag("--validate");
+
+// CLI11_PARSE(app, argv, argc);
+
 // const init = require('./utils/init');
 const cli = require('./utils/cli');
 const log = require('./utils/log');
 
 const input = cli.input;
 const flags = cli.flags;
-const { clear, debug } = flags;
+const {/*  clear, */ debug } = flags;
 
 (() => {
 	// init({ clear });
@@ -21,7 +25,7 @@ const { clear, debug } = flags;
 
 	debug && log(flags);
 
-	if (input.includes('validate')) {
+	if (input.option('validate')) {
 		const validating = new Promise((resolve, reject) => {
 			resolve(flags.validate = true);
 			reject('Not a Success!')

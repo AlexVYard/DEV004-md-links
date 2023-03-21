@@ -31,6 +31,7 @@ const flags = {
 	},
 	stats: {
 		type: `boolean`,
+		default: false,
 		alias: `s`,
 		desc: `Show stats`
 	}

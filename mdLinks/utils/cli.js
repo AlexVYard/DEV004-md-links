@@ -2,7 +2,7 @@ const meow = require('meow');
 const meowHelp = require('cli-meow-help');
 const program = require('commander')
 
-// Options : 
+// Options 
 /* program.option('-v, --validate', 'Validate links').action(function() {
 	console.log("\n hello --validate \n")
 })
@@ -48,7 +48,14 @@ const flags = {
 	version: {
 		type: `boolean`,
 		desc: `Print CLI version`
-	}/* ,
+	},
+	/* empty: {
+		type: `boolean`,
+		default: false,
+		alias: `e`,
+		desc: `Ingrese una ruta`
+	} */
+	/* ,
 	validate: {
 		type: `boolean`,
 		default: false,

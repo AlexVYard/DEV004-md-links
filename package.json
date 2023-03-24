@@ -21,8 +21,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "markdown-link-extractor": "^3.1.0",
     "md-links": "^0.1.0",
     "md-links-alexv": "^0.1.1"
-  },
-  "devDependencies": {}
+  }
 }

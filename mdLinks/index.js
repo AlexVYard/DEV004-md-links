@@ -18,6 +18,7 @@ const log = require('./utils/log');
 const input = cli.input;
 const flags = cli.flags;
 const {/*  clear, */ debug } = flags;
+
 const { Command } = require('commander');
 const route = new Command();
 
@@ -36,23 +37,43 @@ const regex10 = (/[-a-zA-Z0-9@:%._\+~#=]\/[-a-zA-Z0-9@:%._\+~#=]+\.(md)$/) // fi
 // Argument
 route
   .name('connect')
-  .argument('<route>', 'connect to the specified server')
+  .argument('<route1>', 'connect to the specified server')
+  .argument('[route2]', 'password for user, if required', 'route2 was not given')
   .description('Example program with argument descriptions')
-  .action((route) => {
-	// if (/* (route.match(regex9)&&route.match(regex6))|| */route.match(regex7)||(route.match(regex2)&&route.match(regex6))) {
-	if (/* route.match(regex7)|| */route.match(regex10)) {
-		console.log(" ")
-    console.log(route);
-		console.log(" ")
-	} else {
-		console.log(" ")
-		console.log("Ingrese una ruta valida")
-		console.log(" ")
-	}
-  });
+  .action((route1, route2) => {
 
+/* 		if (route1.match(regex10)) {
+    	console.log(route1+" Es una ruta valida");
+		} else {
+			console.log(route1+" No es una ruta valida")
+		}
+		if (route2.match(regex10)) {
+	  	console.log(route2+" Es una ruta valida")
+		} else if (route2 = " ") {
+			console.log("route2 was not given")
+		} else {
+			console.log(route2+" No es una ruta valida")
+		} */
+
+		const { readFileSync } = require('fs');
+		const markdownLinkExtractor = require('markdown-link-extractor');
+		const markdown = readFileSync(route2, {encoding: 'utf8'});
+		const { links } = markdownLinkExtractor(markdown);
+		const  markdownLinkCheck = require('markdown-link-check');
+
+		links.forEach(link => {
+  		markdownLinkCheck(link, function (err, results) {
+  			if (err) {
+    			console.error('Error', err)
+   				return
+  			}
+  			 results.forEach(function (result) {
+    			 console.log(route2, result.link, result.status, result.statusCode)
+  			})
+  		});
+		});
+	})
 route.parse();
-
 
 (() => {
 	// console.log("Ingrese una ruta")
@@ -102,3 +123,39 @@ route.parse();
 	} */
 
 });
+
+/* const { readFileSync } = require('fs');
+const markdownLinkExtractor = require('markdown-link-extractor');
+const markdown = readFileSync(route2, {encoding: 'utf8'});
+const { links } = markdownLinkExtractor(markdown);
+const  markdownLinkCheck = require('markdown-link-check');
+
+'use strict'  
+
+links.forEach(link => {
+  markdownLinkCheck(link, function (err, results) {
+  if (err) {
+    console.error('Error', err)
+    return
+  }
+  results.forEach(function (result) {
+    console.log(result.link, result.status, result.statusCode)
+  })
+  });
+}); */
+
+
+/* 'use strict';
+
+var markdownLinkCheck = require('markdown-link-check');
+
+markdownLinkCheck('(https://github.com/tcort/markdown-link-check/blob/master/README.md)', function (err, results) {
+    if (err) {
+        console.error('Error', err);
+        return;
+    }
+    results.forEach(function (result) {
+        console.log('%s is %s', result.link, result.status);
+				console.log("")
+    });
+}); */

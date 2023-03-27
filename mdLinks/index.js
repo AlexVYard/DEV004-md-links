@@ -17,22 +17,10 @@ const log = require('./utils/log');
 
 const input = cli.input;
 const flags = cli.flags;
-const {/*  clear, */ debug } = flags;
+// const {/*  clear, */ debug } = flags;
 
-const { Command } = require('commander');
+/* const { Command } = require('commander');
 const route = new Command();
-
-const regex0 = (/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/)	// email
-const regex1 = (/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&=]*)/) // con https
-const regex2 = (/[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/) // sin https
-const regex3 = (/^([^\W_]-?)*[^\W_](\.(md|txt))?$/) // md extension not https
-const regex4 = (/(\.\/)?([^\W_]-?)*[^\W_](\.(md|txt))?$/) // md extension con ./
-const regex5 = (/^.*\.(md)$/) // md extension
-const regex6 = (/([-a-zA-Z0-9@:%._\+~#=]\.md)$/) // filename + md extension
-const regex7 = (/(\.\/)[-a-zA-Z0-9@:%._\+~#=].*\.(md)$/) // ./ + filename + md extension
-const regex8 = (/(https?:\/\/[-a-zA-Z0-9@:%._\+~#=]).*([-a-zA-Z0-9@:%._\+~#=]\.md)$/) // https + filename + .md
-const regex9 = (/^(https?:\/\/[-a-zA-Z0-9@:%._\+~#=])/) // https + filename
-const regex10 = (/[-a-zA-Z0-9@:%._\+~#=]\/[-a-zA-Z0-9@:%._\+~#=]+\.(md)$/) // filename + / + filename + .md
 
 // Argument
 route
@@ -42,24 +30,46 @@ route
   .description('Example program with argument descriptions')
   .action((route1, route2) => {
 
-/* 		if (route1.match(regex10)) {
-    	console.log(route1+" Es una ruta valida");
-		} else {
-			console.log(route1+" No es una ruta valida")
-		}
-		if (route2.match(regex10)) {
-	  	console.log(route2+" Es una ruta valida")
-		} else if (route2 = " ") {
-			console.log("route2 was not given")
-		} else {
-			console.log(route2+" No es una ruta valida")
-		} */
-
 		const { readFileSync } = require('fs');
 		const markdownLinkExtractor = require('markdown-link-extractor');
-		const markdown = readFileSync(route2, {encoding: 'utf8'});
+
+		'use strict';
+
+		const { marked } = require('marked');
+		const htmlLinkExtractor = require('html-link-extractor');
+
+		module.exports = function markdownLinkExtractor(markdown, extended = false) {
+    const anchors = [];
+
+    const renderer = {
+        heading(text, level, raw, slugger) {
+            if (this.options.headerIds) {
+                var id = this.options.headerPrefix + slugger.slug(raw);
+                anchors.push('#' + encodeURIComponent(id));
+                if (id.indexOf('--') !== -1) {
+                    anchors.push('#' + encodeURIComponent(id.replace(/-+/g, '-')));
+                }
+                return "<h" + level + " id=\"" + id + "\">" + text + "</h" + level + ">\n";
+            } // ignore IDs
+
+
+            return "<h" + level + ">" + text + "</h" + level + ">\n";
+        }
+    };
+
+    marked.setOptions({
+        mangle: false, // don't escape autolinked email address with HTML character references.
+    });
+    marked.use({ renderer });
+
+    const html = marked(markdown);
+    const links = htmlLinkExtractor(html);
+    return { links, anchors };
+		};
+
+		const markdown = readFileSync(route1, {encoding: 'utf8'});
 		const { links } = markdownLinkExtractor(markdown);
-		const  markdownLinkCheck = require('markdown-link-check');
+		const markdownLinkCheck = require('markdown-link-check');
 
 		links.forEach(link => {
   		markdownLinkCheck(link, function (err, results) {
@@ -68,12 +78,12 @@ route
    				return
   			}
   			 results.forEach(function (result) {
-    			 console.log(route2, result.link, result.status, result.statusCode)
+    			 console.log(route1, result.link, result.status, result.statusCode)
   			})
   		});
 		});
 	})
-route.parse();
+route.parse(); */
 
 (() => {
 	// console.log("Ingrese una ruta")
@@ -159,3 +169,15 @@ markdownLinkCheck('(https://github.com/tcort/markdown-link-check/blob/master/REA
 				console.log("")
     });
 }); */
+
+/* const regex0 = (/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/)	// email
+const regex1 = (/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&=]*)/) // con https
+const regex2 = (/[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/) // sin https
+const regex3 = (/^([^\W_]-?)*[^\W_](\.(md|txt))?$/) // md extension not https
+const regex4 = (/(\.\/)?([^\W_]-?)*[^\W_](\.(md|txt))?$/) // md extension con ./
+const regex5 = (/^.*\.(md)$/) // md extension
+const regex6 = (/([-a-zA-Z0-9@:%._\+~#=]\.md)$/) // filename + md extension
+const regex7 = (/(\.\/)[-a-zA-Z0-9@:%._\+~#=].*\.(md)$/) // ./ + filename + md extension
+const regex8 = (/(https?:\/\/[-a-zA-Z0-9@:%._\+~#=]).*([-a-zA-Z0-9@:%._\+~#=]\.md)$/) // https + filename + .md
+const regex9 = (/^(https?:\/\/[-a-zA-Z0-9@:%._\+~#=])/) // https + filename
+const regex10 = (/[-a-zA-Z0-9@:%._\+~#=]\/[-a-zA-Z0-9@:%._\+~#=]+\.(md)$/) // filename + / + filename + .md */

@@ -10,12 +10,140 @@ const program = require('commander')
 program.option('-s, --stats', 'Show stats').action(function() {
 	console.log("\n hello --stats \n")
 }) */
-program
-.option('-v, --validate', 'Validate links, use with a route')
-.option('-s, --stats', 'Show stats, use with a route')
-program.parse(process.argv)
+// let route1 = 'README.md'
 
 const options = program.opts();
+program
+	.argument('<route1>', 'connect to the specified server')
+	.option('-v, --validate', 'Validate links, use with a route')
+	.option('-s, --stats', 'Show stats, use with a route')
+ 	.action((route1, options) => { 	
+ 		if (options.validate) {	
+			const { readFileSync } = require('fs');
+			const markdownLinkExtractor = require('markdown-link-extractor');
+
+			'use strict';
+
+			const { marked } = require('marked');
+			const htmlLinkExtractor = require('html-link-extractor');
+
+			module.exports = function markdownLinkExtractor(markdown, extended = false) {
+    	const anchors = [];
+
+    	const renderer = {
+      	  heading(text, level, raw, slugger) {
+        	    if (this.options.headerIds) {
+          	      var id = this.options.headerPrefix + slugger.slug(raw);
+            	    anchors.push('#' + encodeURIComponent(id));
+              	  if (id.indexOf('--') !== -1) {
+                	    anchors.push('#' + encodeURIComponent(id.replace(/-+/g, '-')));
+	                }
+  	              return "<h" + level + " id=\"" + id + "\">" + text + "</h" + level + ">\n";
+    	        } // ignore IDs
+
+
+  	          return "<h" + level + ">" + text + "</h" + level + ">\n";
+    	    }
+   	 };
+
+    	marked.setOptions({
+      	  mangle: false, // don't escape autolinked email address with HTML character references.
+   	 });
+    	marked.use({ renderer });
+
+    	const html = marked(markdown);
+    	const links = htmlLinkExtractor(html);
+    	return { links, anchors };
+		
+			};
+
+			const markdown = readFileSync(route1, {encoding: 'utf8'});
+			const { links } = markdownLinkExtractor(markdown);
+			const markdownLinkCheck = require('markdown-link-check');
+
+			links.forEach(link => {
+  			markdownLinkCheck(link, function (err, results) {
+  				if (err) {
+    				console.error('Error', err)
+   					return
+ 	 				}
+  			  results.forEach(function (result) {
+    			  console.log(route1, result.link, result.status, result.statusCode)
+  				})
+  			});
+			});
+		}
+ 	})
+program.parse(process.argv)
+
+/* const options = program.opts();
+if (options.validate) {
+	console.log("hello --validate")
+	
+	program
+	.argument('<route1>', 'connect to the specified server')
+	.argument('[route2]', 'password for user, if required', 'route2 was not given')
+	.action((route1) => {
+	route1 = 'README.md' 
+	const { readFileSync } = require('fs');
+	const markdownLinkExtractor = require('markdown-link-extractor');
+
+	'use strict';
+
+	const { marked } = require('marked');
+	const htmlLinkExtractor = require('html-link-extractor');
+
+	module.exports = function markdownLinkExtractor(markdown, extended = false) {
+	const anchors = [];
+
+	const renderer = {
+			heading(text, level, raw, slugger) {
+					if (this.options.headerIds) {
+							var id = this.options.headerPrefix + slugger.slug(raw);
+							anchors.push('#' + encodeURIComponent(id));
+							if (id.indexOf('--') !== -1) {
+									anchors.push('#' + encodeURIComponent(id.replace(/-+/g, '-')));
+							}
+							return "<h" + level + " id=\"" + id + "\">" + text + "</h" + level + ">\n";
+					} // ignore IDs
+
+
+					return "<h" + level + ">" + text + "</h" + level + ">\n";
+			}
+	};
+
+	marked.setOptions({
+			mangle: false, // don't escape autolinked email address with HTML character references.
+	});
+	marked.use({ renderer });
+
+	const html = marked(markdown);
+	const links = htmlLinkExtractor(html);
+	return { links, anchors };
+
+	};
+
+	const markdown = readFileSync(route1, {encoding: 'utf8'});
+	const { links } = markdownLinkExtractor(markdown);
+	const markdownLinkCheck = require('markdown-link-check');
+
+	links.forEach(link => {
+		markdownLinkCheck(link, function (err, results) {
+			if (err) {
+				console.error('Error', err)
+				 return
+				}
+			results.forEach(function (result) {
+				console.log(route1, result.link, result.status, result.statusCode)
+			})
+		});
+	});
+}
+)} */
+// program.parse()
+
+
+/* const options = program.opts();
 if (options.stats) {
 	console.log("")
 	console.log(" Total: 'Total de links' \n Unique: 'Total links unicos' ")
@@ -25,7 +153,7 @@ if (options.validate) {
 	console.log(" ")
 	console.log(" hello --validate ")
 	console.log(" ")
-}
+} */
 
 const flags = {
 	clear: {
@@ -88,3 +216,69 @@ const helpText = meowHelp({
 }; */
 
 module.exports = meow(helpText, options);
+
+/* const { Command } = require('commander');
+const route = new Command();
+
+// Argument
+route
+  .name('connect')
+  .argument('<route1>', 'connect to the specified server')
+  .argument('[route2]', 'password for user, if required', 'route2 was not given')
+  .description('Example program with argument descriptions')
+  .action((route1, route2) => {
+
+		const { readFileSync } = require('fs');
+		const markdownLinkExtractor = require('markdown-link-extractor');
+
+		'use strict';
+
+		const { marked } = require('marked');
+		const htmlLinkExtractor = require('html-link-extractor');
+
+		module.exports = function markdownLinkExtractor(markdown, extended = false) {
+    const anchors = [];
+
+    const renderer = {
+        heading(text, level, raw, slugger) {
+            if (this.options.headerIds) {
+                var id = this.options.headerPrefix + slugger.slug(raw);
+                anchors.push('#' + encodeURIComponent(id));
+                if (id.indexOf('--') !== -1) {
+                    anchors.push('#' + encodeURIComponent(id.replace(/-+/g, '-')));
+                }
+                return "<h" + level + " id=\"" + id + "\">" + text + "</h" + level + ">\n";
+            } // ignore IDs
+
+
+            return "<h" + level + ">" + text + "</h" + level + ">\n";
+        }
+    };
+
+    marked.setOptions({
+        mangle: false, // don't escape autolinked email address with HTML character references.
+    });
+    marked.use({ renderer });
+
+    const html = marked(markdown);
+    const links = htmlLinkExtractor(html);
+    return { links, anchors };
+		};
+
+		const markdown = readFileSync(route1, {encoding: 'utf8'});
+		const { links } = markdownLinkExtractor(markdown);
+		const markdownLinkCheck = require('markdown-link-check');
+
+		links.forEach(link => {
+  		markdownLinkCheck(link, function (err, results) {
+  			if (err) {
+    			console.error('Error', err)
+   				return
+  			}
+  			 results.forEach(function (result) {
+    			 console.log(route1, result.link, result.status, result.statusCode)
+  			})
+  		});
+		});
+	})
+route.parse(); */

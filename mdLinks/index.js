@@ -17,6 +17,9 @@ const log = require('./utils/log');
 
 const input = cli.input;
 const flags = cli.flags;
+
+// import cli from './utils/cli.js'
+
 // const {/*  clear, */ debug } = flags;
 
 /* const { Command } = require('commander');
@@ -93,6 +96,36 @@ route.parse(); */
 
 	debug && log(flags);
 
+	/* const link = require('linkinator');
+
+	console.log(link)
+
+	async function complex() {
+		// create a new `LinkChecker` that we'll use to run the scan.
+		const checker = new link.LinkChecker();
+
+		// Respond to the beginning of a new page being scanned
+
+		checker.on('pagestart', url => {
+			console.log(`Scanning ${url}`);
+		});
+
+		// After a page is scanned, check out the results!
+		checker.on('link', result => {
+
+			// check the specific url that was scanned
+			console.log(`  ${result.url}`);
+
+			// How did the scan go?  Potential states are `BROKEN`, `OK`, and `SKIPPED`
+			console.log(`  ${result.state}`);
+
+			// What was the status code of the response?
+			console.log(`  ${result.status}`);
+
+			// What page linked here?
+			console.log(`  ${result.parent}`);
+		});
+	} */
 	/*  	if (input.includes("hola@bye.com")) {
 			const empty = new Promise((resolve, reject) => {
 				resolve(flags.empty = true);

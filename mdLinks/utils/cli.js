@@ -10,7 +10,8 @@ program
 	.argument('<route1>', 'connect to the specified server')
 	.option('-v, --validate', 'Validate links, use with a route')
 	.option('-s, --stats', 'Show stats, use with a route')
-	.action(async (route1, options) => {
+	.action((route1, options) => {
+
 
 		const { readFileSync } = require('fs');
 		const markdownLinkExtractor = require('markdown-link-extractor');
@@ -21,82 +22,90 @@ program
 		const validate = options.validate ? 1 : 0;
 		const stats = options.stats ? 1 : 0;
 
-		import('linkinator')
-		.then(async module => {
-			// console.log("module es: ", module)
-			// console.log(module.LinkChecker)
-
-			const BASE_URL = route1
-
-			const checker = new module.LinkChecker()
-
-			let brokenLinks = 0
-
-			checker.on("link", (link) => {
-				if (link.state === "BROKEN") {
-					brokenLinks++
-				}
-			})
-
-			await checker.check({ path: BASE_URL })
-
-			if (options.validate) {
-				const markdownLinkCheck = require('markdown-link-check');
-				links.forEach(link => {
-					markdownLinkCheck(link, (err, results) => {
-						if (err) {
-							console.error('Error', err)
-							return
+		if (options.validate) {
+			// myPromise.then(() => {
+			const markdownLinkCheck = require('markdown-link-check');
+			links.forEach(link => {
+				markdownLinkCheck(link, (err, results) => {
+					if (err) {
+						console.error('Error', err)
+						return
+					}
+					results.forEach(result => {
+						if (stats === 0) {
+							console.log(route1, result.link, result.status, result.statusCode)
 						}
-						results.forEach(result => {
-							if (stats === 0) {
-								console.log(route1, result.link, result.status, result.statusCode)
-							}
-						})
 					})
 				})
-			}
-	
-			if (options.stats) {
-				let duplicatesTotal = links.filter((item, index) => links.indexOf(item) !== index).length
-				console.log("Total: " + links.length)
-				console.log("Unique: " + (links.length - duplicatesTotal))
+			})
+			// })
+		}
+
+		let brokenLinks = 0
+
+		const brokenPromise = new Promise((resolve) => {
+			import('linkinator')
+				.then(module => {
+					// console.log("module es: ", module)
+					// console.log(module.LinkChecker)
+					// console.log("PROCESANDO, ESTA LENTO")
+
+					const checker = new module.LinkChecker()
+
+					checker.on("link", (link) => {
+						if (link.state === "BROKEN") {
+							brokenLinks++
+							// console.log(link["url"])
+						}
+					})
+
+					// const myPromise = new Promise((resolve) => {
+					resolve(checker.check({ path: route1 }))
+					// });
+				});
+		})
+
+		if (options.stats) {
+			let duplicatesTotal = links.filter((item, index) => links.indexOf(item) !== index).length
+			console.log("Total: " + links.length)
+			console.log("Unique: " + (links.length - duplicatesTotal))
+			brokenPromise.then(() => {
 				if (validate === 1) {
 					console.log("Broken: " + brokenLinks)
 				}
-			}
+			})
+		}
 
-		})
-
+	})
 		// 'use strict';
 
-/* 		const link = require('linkinator');
-
-		async function complex() {
-			// create a new `LinkChecker` that we'll use to run the scan.
-			const checker = new link.LinkChecker();
-
-			// Respond to the beginning of a new page being scanned
-			checker.on('pagestart', url => {
-				console.log(`Scanning ${url}`);
-			});
-
-			// After a page is scanned, check out the results!
-			checker.on('link', result => {
-
-				// check the specific url that was scanned
-				console.log(`  ${result.url}`);
-
-				// How did the scan go?  Potential states are `BROKEN`, `OK`, and `SKIPPED`
-				console.log(`  ${result.state}`);
-
-				// What was the status code of the response?
-				console.log(`  ${result.status}`);
-
-				// What page linked here?
-				console.log(`  ${result.parent}`);
-			});
-		} */
+		/* 		const link = require('linkinator');
+		
+				async function complex() {
+					// create a new `LinkChecker` that we'll use to run the scan.
+					const checker = new link.LinkChecker();
+		
+					// Respond to the beginning of a new page being scanned
+					checker.on('pagestart', url => {
+						console.log(`Scanning ${url}`);
+					});
+		
+					// After a page is scanned, check out the results!
+					checker.on('link', result => {
+		
+						// check the specific url that was scanned
+						console.log(`  ${result.url}`);
+		
+						// How did the scan go?  Potential states are `BROKEN`, `OK`, and `SKIPPED`
+						console.log(`  ${result.state}`);
+		
+						// What was the status code of the response?
+						console.log(`  ${result.status}`);
+		
+						// What page linked here?
+						console.log(`  ${result.parent}`);
+					});
+				} */
 
 		// import LinkChecker from 'linkinator';
 		// const { LinkChecker } = require('linkinator');
@@ -254,7 +263,7 @@ program
 						}
 					}) */
 
-	})
+
 
 
 

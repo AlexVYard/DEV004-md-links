@@ -123,8 +123,21 @@ program
 							if ((validate === 0) && (stats === 0)) console.log(markdown2[i], links2[j])
 
 							if ((validate === 1) && (stats === 0)) {
-								const result = await checker.check({ path: links2[j] });
-								console.log(markdown2[i], result.links[0].url, result.links[0].state, result.links[0].status);
+								// let result = null
+								const resultPromise = new Promise((resolve) => {
+								  const result = checker.check({ path: links2[j] });									
+									resolve(result)
+									// console.log(markdown2[i], result.links[0].url, result.links[0].state, result.links[0].status);
+								})								
+								resultPromise.then((value) => {
+									/* console.log(resultPromise)
+									console.log(resultPromise.result) */
+									// console.log(value.links[0].url)
+									/* console.log(resultPromise[0])
+									console.log(resultPromise[Promise])
+									console.log(resultPromise["Promise"]) */
+									console.log(markdown2[i], value.links[0].url, value.links[0].state, value.links[0].status);
+								})					
 							}
 
 							/* if ((validate === 1) && (stats === 1)) {

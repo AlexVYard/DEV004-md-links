@@ -87,6 +87,7 @@ program
 
 					for (i in markdown2) {
 						const markdown = readFileSync(`${route}/${markdown2[i]}`, { encoding: 'utf8' })
+						// console.log(markdown2[i])
 						let { links } = markdownLinkExtractor(markdown)
 						let links2 = links.filter((item) => item.match(/^(https)+\:\/\//))
 						// console.log(links2)	
@@ -119,26 +120,59 @@ program
 						} */
 
 						for (j in links2) {
-
+							
 							if ((validate === 0) && (stats === 0)) console.log(markdown2[i], links2[j])
 
 							if ((validate === 1) && (stats === 0)) {
-								// let result = null
-								const resultPromise = new Promise((resolve) => {
-								  const result = checker.check({ path: links2[j] });									
-									resolve(result)
-									// console.log(markdown2[i], result.links[0].url, result.links[0].state, result.links[0].status);
-								})								
-								resultPromise.then((value) => {
-									/* console.log(resultPromise)
-									console.log(resultPromise.result) */
-									// console.log(value.links[0].url)
-									/* console.log(resultPromise[0])
-									console.log(resultPromise[Promise])
-									console.log(resultPromise["Promise"]) */
-									console.log(markdown2[i], value.links[0].url, value.links[0].state, value.links[0].status);
-								})					
+								// console.log(markdown2[i])
+								Promise.resolve(links2[j])
+									.then((value) => 										
+										new Promise((resolve) => {
+											// console.log(value)
+											// console.log(value[1])
+											// const result = checker.on("link", (value) => {
+											//   console.log(link)
+											// })
+											const result = checker.check({ path: value });
+											// console.log(markdown2[i], result.links[0].url, result.links[0].state, result.links[0].status)
+											resolve(result)
+										})
+									)
+									.then((value) => {
+										// console.log(value)
+										console.log(markdown2[i], value.links[0].url, value.links[0].state, value.links[0].status);
+									}) 
+
+								/* const resultPromise = new Promise((resolve) => {
+									markdown2[i]
+									const result = checker.check({ path: links2[j] });
+									resolve(result, markdown2[i])
+								}) */
+
+								/* resultPromise.then((value, value2) => {		
+									// console.log(value)			
+									console.log(value2)				
+									console.log(value2, value.links[0].url, value.links[0].state, value.links[0].status);
+								}) */
 							}
+
+							// if ((validate === 1) && (stats === 0)) {
+							// 	// let result = null
+							// 	const resultPromise = new Promise((resolve) => {
+							// 		const result = checker.check({ path: links2[j] });
+							// 		resolve(result)
+							// 		// console.log(markdown2[i], result.links[0].url, result.links[0].state, result.links[0].status);
+							// 	})
+							// 	resultPromise.then((value) => {
+							// 		/* console.log(resultPromise)
+							// 		console.log(resultPromise.result) */
+							// 		// console.log(value.links[0].url)
+							// 		/* console.log(resultPromise[0])
+							// 		console.log(resultPromise[Promise])
+							// 		console.log(resultPromise["Promise"]) */
+							// 		console.log(markdown2[i], value.links[0].url, value.links[0].state, value.links[0].status);
+							// 	})
+							// }
 
 							/* if ((validate === 1) && (stats === 1)) {
 	
@@ -169,17 +203,71 @@ program
 
 							let brokenLinks = 0
 
-							for (j in links2) {
-								const result = await checker.check({ path: links2[j] });
-								if (result.links[0].state === "BROKEN") brokenLinks++
-								// console.log(markdown2[i], result.links[0].url, result.links[0].state, result.links[0].status);
-							}
+							const brokenPromise = new Promise((resolve) => {
+								/* import('linkinator')
+									.then(module => { */
+										const checker = new module.LinkChecker()
+										checker.on("link", (link) => {
+											if (link.state === "BROKEN") {
+												brokenLinks++
+											}
+										})
+										resolve(checker.check({ path: links2[j] }))
+									// });
+							})
+	
+							brokenPromise.then(() => {
+								let duplicatesTotal = links.filter((item, index) => links.indexOf(item) !== index).length
+								console.log(markdown2[i])
+								console.log("  Total: " + links.length)
+								console.log("  Unique: " + (links.length - duplicatesTotal))
+								console.log("  Broken: " + brokenLinks)
+							})
 
-							console.log(markdown2[i])
-							let duplicatesTotal = links2.filter((item, index) => links2.indexOf(item) !== index).length
-							console.log("  Total: " + links2.length)
-							console.log("  Unique: " + (links2.length - duplicatesTotal))
-							console.log("  Broken: " + brokenLinks)
+							/* let brokenLinks = 0
+
+							function brokenPromise() {
+								Promise.all(j)
+									.then(resolve => {
+										for (j in links2) {
+											const brokenPromise2 = new Promise((resolve) => {
+												const result = checker.check({ path: links2[j] });
+												resolve(result)
+											})								
+											brokenPromise2.then((value) => new Promise((resolve) => {											
+												if (value.links[0].state === "BROKEN") brokenLinks++
+												console.log(markdown2[i], value.links[0].url, brokenLinks)
+												resolve(brokenLinks)
+											}))
+												// .then(() => {
+													console.log(markdown2[i])
+													let duplicatesTotal = links2.filter((item, index) => links2.indexOf(item) !== index).length
+													console.log("  Total: " + links2.length)
+													console.log("  Unique: " + (links2.length - duplicatesTotal))
+													console.log("  Broken: " + brokenLinks)
+												// })
+												// console.log(brokenLinks)
+										}	
+									})	
+									.then((value) => {
+										console.log(markdown2[i])
+										let duplicatesTotal = links2.filter((item, index) => links2.indexOf(item) !== index).length
+										console.log("  Total: " + links2.length)
+										console.log("  Unique: " + (links2.length - duplicatesTotal))
+										console.log("  Broken: " + value)
+									})					
+									
+								// console.log(brokenLinks)
+							}
+							brokenPromise()
+							console.log(brokenLinks) */
+							/* brokenPromise.then((value) => {
+								console.log(markdown2[i])
+								let duplicatesTotal = links2.filter((item, index) => links2.indexOf(item) !== index).length
+								console.log("  Total: " + links2.length)
+								console.log("  Unique: " + (links2.length - duplicatesTotal))
+								console.log("  Broken: " + value)
+							})	 */
 
 						}
 

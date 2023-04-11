@@ -17,7 +17,7 @@ program
 		import('linkinator')
 			.then(async module => {
 
-				const { readdirSync, readFileSync } = require('fs');
+				const { readdirSync, readFileSync, readFile } = require('fs');
 				const markdownLinkExtractor = require('markdown-link-extractor');
 				const markdownLinkCheck = require('markdown-link-check');
 
@@ -27,15 +27,14 @@ program
 				const stats = options.stats ? 1 : 0;
 
 				if (route.match(/(\.md)$/)) {
-					const markdown = readFileSync(route, { encoding: 'utf8' });	// string del archivo markdown
-					const { links } = markdownLinkExtractor(markdown);	// objeto con todos los links		
-					// console.log(readFileSync(links[10], { encoding: 'utf8' }))
-					// console.log(links)
-
-					/* const validate = options.validate ? 1 : 0;
-					const stats = options.stats ? 1 : 0; */
-
-					let brokenLinks = 0
+					// const markdown = readFileSync(route, { encoding: 'utf8' });	// string del archivo markdown
+					let markdown = "no esta modificado"
+					readFile(route, { encoding: 'utf8' }, function(err, data){
+						markdown = data
+						// console.log(markdown)
+						const { links } = markdownLinkExtractor(markdown)
+						// console.log(links)
+						let brokenLinks = 0
 
 					const brokenPromise = new Promise((resolve) => {
 						import('linkinator')
@@ -75,6 +74,16 @@ program
 							}
 						})
 					}
+					});
+					// console.log(markdown)
+					// const { links } = markdownLinkExtractor(markdown);	// objeto con todos los links		
+					// console.log(readFileSync(links[10], { encoding: 'utf8' }))
+					// console.log(links)
+
+					/* const validate = options.validate ? 1 : 0;
+					const stats = options.stats ? 1 : 0; */
+
+					
 
 				} else {
 					const markdown2 = readdirSync(route, { encoding: 'utf8' })

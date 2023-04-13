@@ -83,17 +83,22 @@ program
 					const checker = new module.LinkChecker()
 
 					for (i in markdown2) {
-						let markdown = "no esta modificado"
-						readFile(`${route}/${markdown2[i]}`, { encoding: 'utf8' }, function (err, data) {
-							markdown = data
+						// console.log(markdown2[i])
+						// let markdown = "no esta modificado"
+						const routeMarkdown = `${route}\\${markdown2[i]}`
+						readFile(routeMarkdown, { encoding: 'utf8' }, function (err, data) {
+							// markdown = data
+							// console.log(routeMarkdown)
 							// console.log(markdown2[i])
-							let { links } = markdownLinkExtractor(markdown)
+							let { links } = markdownLinkExtractor(data)
+							console.log(data)
 							let links2 = links.filter((item) => item.match(/^(https)+\:\/\//)) // quitamos links que no son https
+							// const markdown2Step = markdown2[i]
 							// console.log(links2)	
 
 							if ((validate === 0) && (stats === 1)) {
 								let duplicatesTotal = links2.filter((item, index) => links2.indexOf(item) !== index).length
-								console.log(markdown2[i])
+								console.log(routeMarkdown)
 								console.log("  Total: " + links2.length)
 								console.log("  Unique: " + (links2.length - duplicatesTotal))
 								console.log("")
@@ -101,10 +106,26 @@ program
 
 							for (j in links2) {
 
-								if ((validate === 0) && (stats === 0)) console.log(markdown2[i], links2[j])
+								if ((validate === 0) && (stats === 0)) console.log(routeMarkdown, links2[j])
 
 								if ((validate === 1) && (stats === 0)) {									
 									// console.log(markdown2[i])
+									// console.log(links2[j]) 
+
+									/* const resultPromise = new Promise((resolve) => {
+	
+										const checker = new module.LinkChecker()
+										checker.on("link", (link) => {
+											// console.log(link)
+											// console.log(routeMarkdown, link.url, link.state, link.status)
+										})
+										resolve(checker.check({ path: links2[j] }))
+	
+									})
+	
+									resultPromise.then(() => {
+										console.log(routeMarkdown, result.links[0].url, result.links[0].state, result.links[0].status)
+									}) */
 
 									Promise.resolve(links2[j])
 										.then((value) =>
@@ -121,7 +142,7 @@ program
 										)
 										.then((value) => {
 											// console.log(value)
-											console.log(markdown2[i], value.links[0].url, value.links[0].state, value.links[0].status);
+											console.log(routeMarkdown, value.links[0].url, value.links[0].state, value.links[0].status);
 										})
 
 								}

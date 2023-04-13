@@ -15,9 +15,9 @@ program
 		console.log("") // linea extra para que se vea bonito
 
 		import('linkinator')
-			.then(async module => {
+			.then(module => {
 
-				const { readdirSync, readFileSync } = require('fs');
+				const { readdirSync, /* readFileSync,  */readFile } = require('fs');
 				const markdownLinkExtractor = require('markdown-link-extractor');
 				const markdownLinkCheck = require('markdown-link-check');
 
@@ -27,314 +27,138 @@ program
 				const stats = options.stats ? 1 : 0;
 
 				if (route.match(/(\.md)$/)) {
-					const markdown = readFileSync(route, { encoding: 'utf8' });	// string del archivo markdown
-					const { links } = markdownLinkExtractor(markdown);	// objeto con todos los links		
-					// console.log(readFileSync(links[10], { encoding: 'utf8' }))
-					// console.log(links)
+					// const markdown = readFileSync(route, { encoding: 'utf8' });	// string del archivo markdown
+					let markdown = "no esta modificado"
+					readFile(route, { encoding: 'utf8' }, function (err, data) {
+						markdown = data
+						// console.log(markdown)
+						const { links } = markdownLinkExtractor(markdown)
+						// console.log(links)
+						let brokenLinks = 0
 
-					/* const validate = options.validate ? 1 : 0;
-					const stats = options.stats ? 1 : 0; */
-
-					let brokenLinks = 0
-
-					const brokenPromise = new Promise((resolve) => {
-						import('linkinator')
-							.then(module => {
-								const checker = new module.LinkChecker()
-								checker.on("link", (link) => {
-									if (link.state === "BROKEN") {
-										brokenLinks++
-									}
-								})
-								resolve(checker.check({ path: route }))
-							});
-					})
-
-					const markdownLinkCheck = require('markdown-link-check');
-
-					links.forEach(link => {
-						markdownLinkCheck(link, (err, results) => {
-							if (err) {
-								console.error('Error', err)
-								return
-							}
-							results.forEach(result => {
-								if ((validate === 0) && (stats === 0)) console.log(route, result.link)
-								if ((validate === 1) && (stats === 0)) console.log(route, result.link, result.status, result.statusCode)
-							})
-						})
-					})
-
-					if (stats === 1) {
-						let duplicatesTotal = links.filter((item, index) => links.indexOf(item) !== index).length
-						console.log("Total: " + links.length)
-						console.log("Unique: " + (links.length - duplicatesTotal))
-						brokenPromise.then(() => {
-							if (validate === 1) {
-								console.log("Broken: " + brokenLinks)
-							}
-						})
-					}
-
-				} else {
-					const markdown2 = readdirSync(route, { encoding: 'utf8' })
-					// console.log(markdown2)
-
-					const checker = new module.LinkChecker()
-
-					/* const validate = options.validate ? 1 : 0;
-					const stats = options.stats ? 1 : 0; */
-
-					for (i in markdown2) {
-						const markdown = readFileSync(`${route}/${markdown2[i]}`, { encoding: 'utf8' })
-						// console.log(markdown2[i])
-						let { links } = markdownLinkExtractor(markdown)
-						let links2 = links.filter((item) => item.match(/^(https)+\:\/\//))
-						// console.log(links2)	
-
-						if ((validate === 0) && (stats === 1)) {
-							let duplicatesTotal = links2.filter((item, index) => links2.indexOf(item) !== index).length
-							console.log(markdown2[i])
-							console.log("  Total: " + links2.length)
-							console.log("  Unique: " + (links2.length - duplicatesTotal))
-							console.log("")
-						}
-
-						/* if ((validate === 1) && (stats === 0)) {
-	
-							// const validatePromise = new Promise((resolve) => {
-								checker.on("link", (link) => {
-									console.log(markdown2[i], link.url, link.state, link.status)
-									if (link.state === "BROKEN") {
-										brokenLinks++
-									}
-								})
-								await checker.check({ path: `${route}/${markdown2[i]}` })
-								// console.log(markdown2[i], result.links[0].url, result.links[0].state, result.links[0].status);
-							// })
-	
-							// validatePromise.then(() => {
-	
-							// })
-							
-						} */
-
-						for (j in links2) {
-							
-							if ((validate === 0) && (stats === 0)) console.log(markdown2[i], links2[j])
-
-							if ((validate === 1) && (stats === 0)) {
-								// console.log(markdown2[i])
-								Promise.resolve(links2[j])
-									.then((value) => 										
-										new Promise((resolve) => {
-											// console.log(value)
-											// console.log(value[1])
-											// const result = checker.on("link", (value) => {
-											//   console.log(link)
-											// })
-											const result = checker.check({ path: value });
-											// console.log(markdown2[i], result.links[0].url, result.links[0].state, result.links[0].status)
-											resolve(result)
-										})
-									)
-									.then((value) => {
-										// console.log(value)
-										console.log(markdown2[i], value.links[0].url, value.links[0].state, value.links[0].status);
-									}) 
-
-								/* const resultPromise = new Promise((resolve) => {
-									markdown2[i]
-									const result = checker.check({ path: links2[j] });
-									resolve(result, markdown2[i])
-								}) */
-
-								/* resultPromise.then((value, value2) => {		
-									// console.log(value)			
-									console.log(value2)				
-									console.log(value2, value.links[0].url, value.links[0].state, value.links[0].status);
-								}) */
-							}
-
-							// if ((validate === 1) && (stats === 0)) {
-							// 	// let result = null
-							// 	const resultPromise = new Promise((resolve) => {
-							// 		const result = checker.check({ path: links2[j] });
-							// 		resolve(result)
-							// 		// console.log(markdown2[i], result.links[0].url, result.links[0].state, result.links[0].status);
-							// 	})
-							// 	resultPromise.then((value) => {
-							// 		/* console.log(resultPromise)
-							// 		console.log(resultPromise.result) */
-							// 		// console.log(value.links[0].url)
-							// 		/* console.log(resultPromise[0])
-							// 		console.log(resultPromise[Promise])
-							// 		console.log(resultPromise["Promise"]) */
-							// 		console.log(markdown2[i], value.links[0].url, value.links[0].state, value.links[0].status);
-							// 	})
-							// }
-
-							/* if ((validate === 1) && (stats === 1)) {
-	
-								let brokenLinks = 0
-		
-								const brokenPromise = new Promise((resolve) => {
+						const brokenPromise = new Promise((resolve) => {
+							import('linkinator')
+								.then(module => {
 									const checker = new module.LinkChecker()
 									checker.on("link", (link) => {
-										console.log(link.state)
 										if (link.state === "BROKEN") {
 											brokenLinks++
 										}
 									})
-									resolve(checker.check({ path: links2 }))
-								})
-		
-								brokenPromise.then(() => {
-									if (validate === 1) {
-										console.log("Broken: " + brokenLinks)
-									}
-								})
-	
-							} */
+									resolve(checker.check({ path: route }))
+								});
+						})
 
+						const markdownLinkCheck = require('markdown-link-check');
+
+						links.forEach(link => {
+							markdownLinkCheck(link, (err, results) => {
+								if (err) {
+									console.error('Error', err)
+									return
+								}
+								results.forEach(result => {
+									if ((validate === 0) && (stats === 0)) console.log(route, result.link)
+									if ((validate === 1) && (stats === 0)) console.log(route, result.link, result.status, result.statusCode)
+								})
+							})
+						})
+
+						if (stats === 1) {
+							let duplicatesTotal = links.filter((item, index) => links.indexOf(item) !== index).length
+							console.log("Total: " + links.length)
+							console.log("Unique: " + (links.length - duplicatesTotal))
+							brokenPromise.then(() => {
+								if (validate === 1) {
+									console.log("Broken: " + brokenLinks)
+								}
+							})
 						}
 
-						if ((validate === 1) && (stats === 1)) {
+					}) // end readFile
 
-							let brokenLinks = 0
+				} else {
+					const markdown2 = readdirSync(route, { encoding: 'utf8' })
 
-							const brokenPromise = new Promise((resolve) => {
-								/* import('linkinator')
-									.then(module => { */
-										const checker = new module.LinkChecker()
-										checker.on("link", (link) => {
-											if (link.state === "BROKEN") {
-												brokenLinks++
-											}
-										})
-										resolve(checker.check({ path: links2[j] }))
-									// });
-							})
-	
-							brokenPromise.then(() => {
-								let duplicatesTotal = links.filter((item, index) => links.indexOf(item) !== index).length
-								console.log(markdown2[i])
-								console.log("  Total: " + links.length)
-								console.log("  Unique: " + (links.length - duplicatesTotal))
-								console.log("  Broken: " + brokenLinks)
-							})
+					const checker = new module.LinkChecker()
 
-							/* let brokenLinks = 0
+					for (i in markdown2) {
+						let markdown = "no esta modificado"
+						readFile(`${route}/${markdown2[i]}`, { encoding: 'utf8' }, function (err, data) {
+							markdown = data
+							// console.log(markdown2[i])
+							let { links } = markdownLinkExtractor(markdown)
+							let links2 = links.filter((item) => item.match(/^(https)+\:\/\//)) // quitamos links que no son https
+							// console.log(links2)	
 
-							function brokenPromise() {
-								Promise.all(j)
-									.then(resolve => {
-										for (j in links2) {
-											const brokenPromise2 = new Promise((resolve) => {
-												const result = checker.check({ path: links2[j] });
-												resolve(result)
-											})								
-											brokenPromise2.then((value) => new Promise((resolve) => {											
-												if (value.links[0].state === "BROKEN") brokenLinks++
-												console.log(markdown2[i], value.links[0].url, brokenLinks)
-												resolve(brokenLinks)
-											}))
-												// .then(() => {
-													console.log(markdown2[i])
-													let duplicatesTotal = links2.filter((item, index) => links2.indexOf(item) !== index).length
-													console.log("  Total: " + links2.length)
-													console.log("  Unique: " + (links2.length - duplicatesTotal))
-													console.log("  Broken: " + brokenLinks)
-												// })
-												// console.log(brokenLinks)
-										}	
-									})	
-									.then((value) => {
-										console.log(markdown2[i])
-										let duplicatesTotal = links2.filter((item, index) => links2.indexOf(item) !== index).length
-										console.log("  Total: " + links2.length)
-										console.log("  Unique: " + (links2.length - duplicatesTotal))
-										console.log("  Broken: " + value)
-									})					
-									
-								// console.log(brokenLinks)
-							}
-							brokenPromise()
-							console.log(brokenLinks) */
-							/* brokenPromise.then((value) => {
-								console.log(markdown2[i])
+							if ((validate === 0) && (stats === 1)) {
 								let duplicatesTotal = links2.filter((item, index) => links2.indexOf(item) !== index).length
+								console.log(markdown2[i])
 								console.log("  Total: " + links2.length)
 								console.log("  Unique: " + (links2.length - duplicatesTotal))
-								console.log("  Broken: " + value)
-							})	 */
+								console.log("")
+							}
 
-						}
+							for (j in links2) {
 
-						// const brokenPromise = new Promise((resolve) => {
-						// 	// if ((validate === 1) && (stats === 1)) {
-						// 	checker.on("link", (link) => {
-						// 		// console.log(link.url, link.state)
-						// 		if (link.state === "BROKEN") {
-						// 			brokenLinks++
-						// 		}
-						// 	})
-						// 	resolve(checker.check({ path: `${route}/${markdown2[i]}` }))
-						// 	/* const result = checker.check({ path: links2[j] });
-						// 	if (result.links[0].state === 'BROKEN') {
-						// 		brokenLinks++
-						// 	} */
-						// 	// }
-						// })
+								if ((validate === 0) && (stats === 0)) console.log(markdown2[i], links2[j])
 
-						/* brokenPromise.then(() => {
-							let duplicatesTotal = links2.filter((item, index) => links2.indexOf(item) !== index).length
-							console.log(markdown2[i])
-							console.log("  Total: " + links2.length)
-							console.log("  Unique: " + (links2.length - duplicatesTotal))
-							console.log("  Broken: " + brokenLinks)
-						}) */
+								if ((validate === 1) && (stats === 0)) {									
+									// console.log(markdown2[i])
 
-					}
+									Promise.resolve(links2[j])
+										.then((value) =>
+											new Promise((resolve) => {
+												// console.log(value)
+												// console.log(value[1])
+												// const result = checker.on("link", (value) => {
+												// console.log(link)
+												// })
+												const result = checker.check({ path: value });
+												// console.log(markdown2[i], result.links[0].url, result.links[0].state, result.links[0].status)
+												resolve(result)
+											})
+										)
+										.then((value) => {
+											// console.log(value)
+											console.log(markdown2[i], value.links[0].url, value.links[0].state, value.links[0].status);
+										})
 
-					/* if ((validate === 1) && (stats === 1)) {
-						brokenPromise.then(() => {
-							let duplicatesTotal = links2.filter((item, index) => links2.indexOf(item) !== index).length
-							console.log(markdown2[i])
-							console.log("  Total: " + links2.length)
-							console.log("  Unique: " + (links2.length - duplicatesTotal))
-							console.log("  Broken: " + brokenLinks)
-						})
-					} */
+								}
 
+							}
 
+							if ((validate === 1) && (stats === 1)) {
 
-				}
+								let brokenLinks = 0
 
-				/* checker.on("link", (link) => {
-					console.log(markdown2[i], links[j], link.state)
-					// process.stdout.write(link.state)
-					if (link.state === "BROKEN") {
-						brokenLinks++
-					}
-				}) */
+								const brokenPromise = new Promise((resolve) => {
 
-				/* await checker.check({ path: links2[j] }); */
+									const checker = new module.LinkChecker()
+									checker.on("link", (link) => {
+										if (link.state === "BROKEN") {
+											brokenLinks++
+										}
+									})
+									resolve(checker.check({ path: links2[j] }))
 
-			})
+								})
 
-	})
+								brokenPromise.then(() => {
+									let duplicatesTotal = links.filter((item, index) => links.indexOf(item) !== index).length
+									console.log(markdown2[i])
+									console.log("  Total: " + links.length)
+									console.log("  Unique: " + (links.length - duplicatesTotal))
+									console.log("  Broken: " + brokenLinks)
+								})
 
+							}
 
-/* console.log(markdown2[i], links[j])
-// const brokenPromise = new Promise((resolve) => {
-checker.on('pagestart', url => {
-	console.log(`Scanning ${url}`);
-});
-	
-checker.on('link', result => {
-	console.log(`  ${result.url}`);
-}); */
+						}) // end readFile
+					} // end for markdown2
+				} // end else
+			}) // end special import
+	}) // end commander
 
 /* const result = await checker.check({
 	path: links[j],

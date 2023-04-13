@@ -126,6 +126,11 @@ program
 							let { links } = markdownLinkExtractor(data)
 							// console.log(data)
 							let links2 = links.filter((item) => item.match(/^(https)+\:\/\//)) // quitamos links que no son https
+
+							let regex = /(?=\[(!\[.+?\]\(.+?\)|.+?)]\((https:\/\/[^\)]+)\))/gi
+
+							let links3 = [...data.matchAll(regex)].map((m) => ({ text: m[1], link: m[2] }))
+							// console.log(links3)
 							// const markdown2Step = markdown2[i]
 							// console.log(links2)	
 
@@ -137,11 +142,16 @@ program
 								console.log("")
 							}
 
-							for (j in links2) {
+							for (j in links3) {
+								const linkText = links3[j].text
 
-								if ((validate === 0) && (stats === 0)) console.log(routeMarkdown, links2[j])
+								if ((validate === 0) && (stats === 0)) console.log(routeMarkdown, links3[j].link, linkText)
 
-								if ((validate === 1) && (stats === 0)) {
+							}
+
+							for (k in links3) {
+
+								if ((validate === 1) && (stats === 0)) {									
 									// console.log(markdown2[i])
 									// console.log(links2[j]) 
 
@@ -159,8 +169,8 @@ program
 									resultPromise.then(() => {
 										console.log(routeMarkdown, result.links[0].url, result.links[0].state, result.links[0].status)
 									}) */
-
-									Promise.resolve(links2[j])
+									const linkText = links3[k].text
+									Promise.resolve(links3[k].link)
 										.then((value) =>
 											new Promise((resolve) => {
 												// console.log(value)
@@ -175,7 +185,7 @@ program
 										)
 										.then((value) => {
 											// console.log(value)
-											console.log(routeMarkdown, value.links[0].url, value.links[0].state, value.links[0].status);
+											console.log(routeMarkdown, value.links[0].url, value.links[0].state, value.links[0].status, linkText);
 										})
 
 								}

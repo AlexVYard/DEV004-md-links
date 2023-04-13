@@ -28,12 +28,39 @@ program
 
 				if (route.match(/(\.md)$/)) {
 					// const markdown = readFileSync(route, { encoding: 'utf8' });	// string del archivo markdown
-					let markdown = "no esta modificado"
+					// let markdown = "no esta modificado"
 					readFile(route, { encoding: 'utf8' }, function (err, data) {
-						markdown = data
+						// markdown = data
 						// console.log(markdown)
-						const { links } = markdownLinkExtractor(markdown)
+						const { links/* , anchors */ } = markdownLinkExtractor(data)
 						// console.log(links)
+						// console.log(links.length, anchors.length)
+						let regex = /(?=\[(!\[.+?\]\(.+?\)|.+?)]\((https:\/\/[^\)]+)\))/gi
+
+						let links2 = [...data.matchAll(regex)].map((m) => ({ text: m[1], link: m[2] }))
+
+						/* console.log(links2[0].text)
+						console.log(links2[0].link)
+						console.log(links2[1])
+						console.log(links2[2])
+						console.log(links2[3])
+						console.log(links2[4]) */
+
+						/* var matchs = /\[(.+)\]\((https?:\/\/[^\s]+)(?: "(.+)")?\)|(https?:\/\/[^\s]+)/ig.exec(data);
+						console.log(matchs[0])
+						console.log(matchs[1])
+						console.log(matchs[2])
+						console.log(matchs[3])
+						console.log(matchs[4])
+						console.log(matchs[5])
+						console.log(matchs[6])
+						console.log(matchs[7])
+						console.log(matchs[8])
+						console.log(matchs[9])
+						console.log(matchs[10])
+						console.log(matchs[11])
+						console.log(matchs[12]) */
+
 						let brokenLinks = 0
 
 						const brokenPromise = new Promise((resolve) => {
@@ -51,18 +78,24 @@ program
 
 						const markdownLinkCheck = require('markdown-link-check');
 
-						links.forEach(link => {
-							markdownLinkCheck(link, (err, results) => {
+						// console.log(links2[0].link)
+
+						// links2.link.forEach(link => {
+						for (j in links2) {
+							const linkText = links2[j].text
+							markdownLinkCheck(links2[j].link, (err, results) => {
 								if (err) {
 									console.error('Error', err)
 									return
 								}
+								// console.log(results)
 								results.forEach(result => {
-									if ((validate === 0) && (stats === 0)) console.log(route, result.link)
-									if ((validate === 1) && (stats === 0)) console.log(route, result.link, result.status, result.statusCode)
+									if ((validate === 0) && (stats === 0)) console.log(route, result.link, linkText)
+									if ((validate === 1) && (stats === 0)) console.log(route, result.link, result.status, result.statusCode, linkText)
 								})
 							})
-						})
+						}
+						// })
 
 						if (stats === 1) {
 							let duplicatesTotal = links.filter((item, index) => links.indexOf(item) !== index).length
@@ -108,7 +141,7 @@ program
 
 								if ((validate === 0) && (stats === 0)) console.log(routeMarkdown, links2[j])
 
-								if ((validate === 1) && (stats === 0)) {									
+								if ((validate === 1) && (stats === 0)) {
 									// console.log(markdown2[i])
 									// console.log(links2[j]) 
 
@@ -171,12 +204,13 @@ program
 									console.log("  Total: " + links.length)
 									console.log("  Unique: " + (links.length - duplicatesTotal))
 									console.log("  Broken: " + brokenLinks)
+									console.log("")
 								})
 
 							}
 
-						}) // end readFile
-					} // end for markdown2
+						}) // end readFile						
+					} // end for markdown2					
 				} // end else
 			}) // end special import
 	}) // end commander

@@ -91,7 +91,7 @@ program
 							// console.log(routeMarkdown)
 							// console.log(markdown2[i])
 							let { links } = markdownLinkExtractor(data)
-							console.log(data)
+							// console.log(data)
 							let links2 = links.filter((item) => item.match(/^(https)+\:\/\//)) // quitamos links que no son https
 							// const markdown2Step = markdown2[i]
 							// console.log(links2)	
@@ -167,7 +167,7 @@ program
 
 								brokenPromise.then(() => {
 									let duplicatesTotal = links.filter((item, index) => links.indexOf(item) !== index).length
-									console.log(markdown2[i])
+									console.log(routeMarkdown)
 									console.log("  Total: " + links.length)
 									console.log("  Unique: " + (links.length - duplicatesTotal))
 									console.log("  Broken: " + brokenLinks)

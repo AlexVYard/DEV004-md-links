@@ -37,29 +37,23 @@ program
 						// console.log(links.length, anchors.length)
 						let regex = /(?=\[(!\[.+?\]\(.+?\)|.+?)]\((https:\/\/[^\)]+)\))/gi
 
-						let links2 = [...data.matchAll(regex)].map((m) => ({ text: m[1], link: m[2] }))
+						let links2 = [...data.matchAll(regex)].map((m) => ({ text: m[1], link: m[2], input: m["input"].split("\r\n") }))
+						// console.log(links2[0]) 
+						for (i in links2) {
+							for (j in links2[0]["input"]) {
+								if (links2[0]["input"][j].includes(`[${links2[i]["text"]}](${links2[i]["link"]})`)) {
+									// console.log(`[${links2[i]["text"]}](${links2[i]["link"]})`)
+									// console.log(j)
+									links2[i].line = parseFloat(j)+1
+								}
+							}
+						}
+						// console.log(links2[0]) 
 
-						/* console.log(links2[0].text)
-						console.log(links2[0].link)
-						console.log(links2[1])
-						console.log(links2[2])
-						console.log(links2[3])
-						console.log(links2[4]) */
-
-						/* var matchs = /\[(.+)\]\((https?:\/\/[^\s]+)(?: "(.+)")?\)|(https?:\/\/[^\s]+)/ig.exec(data);
-						console.log(matchs[0])
-						console.log(matchs[1])
-						console.log(matchs[2])
-						console.log(matchs[3])
-						console.log(matchs[4])
-						console.log(matchs[5])
-						console.log(matchs[6])
-						console.log(matchs[7])
-						console.log(matchs[8])
-						console.log(matchs[9])
-						console.log(matchs[10])
-						console.log(matchs[11])
-						console.log(matchs[12]) */
+						// let line = "   <details><summary>Links</summary><p>".includes("<details><summary>Links</summary><p>")
+						// console.log(line)
+						// for (i in links2) {console.log(links2[i].input)}
+						// console.log(links2)
 
 						let brokenLinks = 0
 
@@ -83,6 +77,7 @@ program
 						// links2.link.forEach(link => {
 						for (j in links2) {
 							const linkText = links2[j].text
+							const linkLine = links2[j].line
 							markdownLinkCheck(links2[j].link, (err, results) => {
 								if (err) {
 									console.error('Error', err)
@@ -90,8 +85,8 @@ program
 								}
 								// console.log(results)
 								results.forEach(result => {
-									if ((validate === 0) && (stats === 0)) console.log(route, result.link, linkText)
-									if ((validate === 1) && (stats === 0)) console.log(route, result.link, result.status, result.statusCode, linkText)
+									if ((validate === 0) && (stats === 0)) console.log(route, result.link, linkText, linkLine)
+									if ((validate === 1) && (stats === 0)) console.log(route, result.link, result.status, result.statusCode, linkText, linkLine)
 								})
 							})
 						}
@@ -129,8 +124,19 @@ program
 
 							let regex = /(?=\[(!\[.+?\]\(.+?\)|.+?)]\((https:\/\/[^\)]+)\))/gi
 
-							let links3 = [...data.matchAll(regex)].map((m) => ({ text: m[1], link: m[2] }))
-							// console.log(links3)
+							let links3 = [...data.matchAll(regex)].map((m) => ({ text: m[1], link: m[2], input: m["input"].split("\r\n") }))
+							// console.log(links3[0])
+							// console.log(links3[0]["link"])
+							for (j in links3) {
+								for (k in links3[0]["input"]) {
+									if (links3[0]["input"][k].includes(`[${links3[j]["text"]}](${links3[j]["link"]})`)) {
+										// console.log(`[${links3[j]["text"]}](${links3[j]["link"]})`)
+										// console.log(k)
+										links3[j].line = parseFloat(k)+1
+									}
+								}
+							}
+							// console.log(links3[0])
 							// const markdown2Step = markdown2[i]
 							// console.log(links2)	
 
@@ -143,9 +149,10 @@ program
 							}
 
 							for (j in links3) {
+								const linkLine = links3[j].line
 								const linkText = links3[j].text
 
-								if ((validate === 0) && (stats === 0)) console.log(routeMarkdown, links3[j].link, linkText)
+								if ((validate === 0) && (stats === 0)) console.log(routeMarkdown, links3[j].link, linkText, linkLine)
 
 							}
 
@@ -154,21 +161,8 @@ program
 								if ((validate === 1) && (stats === 0)) {									
 									// console.log(markdown2[i])
 									// console.log(links2[j]) 
-
-									/* const resultPromise = new Promise((resolve) => {
-	
-										const checker = new module.LinkChecker()
-										checker.on("link", (link) => {
-											// console.log(link)
-											// console.log(routeMarkdown, link.url, link.state, link.status)
-										})
-										resolve(checker.check({ path: links2[j] }))
-	
-									})
-	
-									resultPromise.then(() => {
-										console.log(routeMarkdown, result.links[0].url, result.links[0].state, result.links[0].status)
-									}) */
+									
+									const linkLine = links3[k].line
 									const linkText = links3[k].text
 									Promise.resolve(links3[k].link)
 										.then((value) =>
@@ -185,7 +179,7 @@ program
 										)
 										.then((value) => {
 											// console.log(value)
-											console.log(routeMarkdown, value.links[0].url, value.links[0].state, value.links[0].status, linkText);
+											console.log(routeMarkdown, value.links[0].url, value.links[0].state, value.links[0].status, linkText, linkLine);
 										})
 
 								}
@@ -224,121 +218,6 @@ program
 				} // end else
 			}) // end special import
 	}) // end commander
-
-/* const result = await checker.check({
-	path: links[j],
-	// port: 8673,
-	// recurse: true,
-	// linksToSkip: [
-	//   'https://jbeckwith.com/some/link',
-	//   'http://example.com'
-	// ]
-}); */
-
-// console.log(result.passed ? 'PASSED :D' : 'FAILED :(');
-
-// console.log(markdown2[i], links[j])
-/* checker.check({
-	path: links[j]
-	// linksToSkip: [links[j]]
-});
-console.log(markdown2[i], links[j]) */
-// console.log(results["links"][0]["url"]);
-// }
-
-
-// const check = new module.check		
-/* checker.on("link", (link) => {
-	console.log(markdown2[i], links[j], link.state)
-	// process.stdout.write(link.state)
-	if (link.state === "BROKEN") {
-		brokenLinks++
-	}
-}) */
-
-// resolve(checker.check({ path: links[i] }))
-/*	checker.check({
-	path: links[j],
-	recurse: false,
-	linksToSkip: ["/src/img/historiasdeusuario.jpg"]
-}) */
-
-// })
-
-
-
-
-/* links.forEach(link => {
-	markdownLinkCheck(link, (err, results) => {
-		if (err) {
-			console.error('Error', err)
-			return
-		}
-		results.forEach(result => {
-			if ((validate === 0) && (stats === 0)) console.log(markdown2[i], result.link)
-			if ((validate === 1) && (stats === 0)) console.log(markdown2[i], result.link, result.status, result.statusCode)
-		})
-	})
-}) */
-
-/* if (stats === 1) {
-	let duplicatesTotal = links.filter((item, index) => links.indexOf(item) !== index).length
-	console.log("Total: " + links.length)
-	console.log("Unique: " + (links.length - duplicatesTotal))
-	brokenPromise.then(() => {
-		if (validate === 1) {
-			console.log("Broken: " + brokenLinks)
-		}
-	})
-} */
-
-// const { links } = markdownLinkExtractor(markdown);	// objeto con todos los links		
-// console.log(readFileSync(links[10], { encoding: 'utf8' }))
-// console.log(links)
-
-/* const validate = options.validate ? 1 : 0;
-const stats = options.stats ? 1 : 0;
-
-let brokenLinks = 0
-
-const brokenPromise = new Promise((resolve) => {
-	import('linkinator')
-		.then(module => {
-			const checker = new module.LinkChecker()
-			checker.on("link", (link) => {
-				if (link.state === "BROKEN") {
-					brokenLinks++
-				}
-			})
-			resolve(checker.check({ path: route1 }))
-		});
-})
-
-const markdownLinkCheck = require('markdown-link-check');
-	
-links.forEach(link => {
-	markdownLinkCheck(link, (err, results) => {
-		if (err) {
-			console.error('Error', err)
-			return
-		}
-		results.forEach(result => {
-			if ((validate === 0) && (stats === 0)) console.log(route1, result.link)
-			if ((validate === 1) && (stats === 0)) console.log(route1, result.link, result.status, result.statusCode)
-		})
-	})
-})
-
-if (stats === 1) {
-	let duplicatesTotal = links.filter((item, index) => links.indexOf(item) !== index).length
-	console.log("Total: " + links.length)
-	console.log("Unique: " + (links.length - duplicatesTotal))
-	brokenPromise.then(() => {
-		if (validate === 1) {
-			console.log("Broken: " + brokenLinks)
-		}
-	})
-} */
 
 program.parse(process.argv)
 

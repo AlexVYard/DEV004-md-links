@@ -1,7 +1,10 @@
 {
   "name": "md-links",
-  "description": "check links",
+  "description": "check links",  
   "version": "0.0.1",
+  "publishConfig": {
+		"regsitry": "https://npm.pkg.github.com/@AlexVYard"
+	},  
   "license": "UNLICENSED",
   "bin": {
     "md-links": "index.js"

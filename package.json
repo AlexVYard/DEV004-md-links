@@ -2,6 +2,9 @@
   "name": "@AlexVYard/DEV004-md-links",
   "description": "check links",  
   "version": "0.0.1",
+  "publishConfig": {
+    "@AlexVYard:registry": "https://npm.pkg.github.com"
+  }
   "license": "UNLICENSED",
   "bin": {
     "md-links": "index.js"

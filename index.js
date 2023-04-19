@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+
 /**
  * md-links
  * check links
@@ -12,196 +13,240 @@
 // CLI11_PARSE(app, argv, argc);
 
 // const init = require('./utils/init');
-const cli = require('./utils/cli');
-const log = require('./utils/log');
+/* const meow = require('meow');
+const meowHelp = require('cli-meow-help'); */
 
-const input = cli.input;
-const flags = cli.flags;
+const program = require('commander');
+// const options = program.opts();
 
-// import cli from './utils/cli.js'
+// import LinkChecker from 'linkinator';
 
-// const {/*  clear, */ debug } = flags;
-
-/* const { Command } = require('commander');
-const route = new Command();
-
-// Argument
-route
-	.name('connect')
+program
 	.argument('<route1>', 'connect to the specified server')
-	.argument('[route2]', 'password for user, if required', 'route2 was not given')
-	.description('Example program with argument descriptions')
-	.action((route1, route2) => {
+	.option('-v, --validate', 'Validate links, use with a route')
+	.option('-s, --stats', 'Show stats, use with a route')
+	.action((route, options) => {
 
-		const { readFileSync } = require('fs');
-		const markdownLinkExtractor = require('markdown-link-extractor');
+		console.log("") // linea extra para que se vea bonito
 
-		'use strict';
+		import('linkinator')
+			.then(module => {
 
-		const { marked } = require('marked');
-		const htmlLinkExtractor = require('html-link-extractor');
+				const { readdirSync, /* readFileSync,  */readFile } = require('fs');
+				const markdownLinkExtractor = require('markdown-link-extractor');
+				// const markdown = readFileSync(route, { encoding: 'utf8' });	// string del archivo markdown
 
-		module.exports = function markdownLinkExtractor(markdown, extended = false) {
-		const anchors = [];
+				const validate = options.validate ? 1 : 0;
+				const stats = options.stats ? 1 : 0;
 
-		const renderer = {
-				heading(text, level, raw, slugger) {
-						if (this.options.headerIds) {
-								var id = this.options.headerPrefix + slugger.slug(raw);
-								anchors.push('#' + encodeURIComponent(id));
-								if (id.indexOf('--') !== -1) {
-										anchors.push('#' + encodeURIComponent(id.replace(/-+/g, '-')));
+				if (route.match(/(\.md)$/)) {
+					// const markdown = readFileSync(route, { encoding: 'utf8' });	// string del archivo markdown
+					// let markdown = "no esta modificado"
+					readFile(route, { encoding: 'utf8' }, function (err, data) {
+						// markdown = data
+						// console.log(markdown)
+						const { links/* , anchors */ } = markdownLinkExtractor(data)
+						// console.log(links)
+						// console.log(links.length, anchors.length)
+						let regex = /(?=\[(!\[.+?\]\(.+?\)|.+?)]\((https:\/\/[^\)]+)\))/gi
+
+						let links2 = [...data.matchAll(regex)].map((m) => ({ text: m[1], link: m[2], input: m["input"].split("\r\n") }))
+						// console.log(links2[0]) 
+						for (i in links2) {
+							for (j in links2[0]["input"]) {
+								if (links2[0]["input"][j].includes(`[${links2[i]["text"]}](${links2[i]["link"]})`)) {
+									// console.log(`[${links2[i]["text"]}](${links2[i]["link"]})`)
+									// console.log(j)
+									links2[i].line = parseFloat(j)+1
 								}
-								return "<h" + level + " id=\"" + id + "\">" + text + "</h" + level + ">\n";
-						} // ignore IDs
+							}
+						}
+						// console.log(links2[0]) 
 
+						// let line = "   <details><summary>Links</summary><p>".includes("<details><summary>Links</summary><p>")
+						// console.log(line)
+						// for (i in links2) {console.log(links2[i].input)}
+						// console.log(links2)
 
-						return "<h" + level + ">" + text + "</h" + level + ">\n";
-				}
-		};
+						let brokenLinks = 0
 
-		marked.setOptions({
-				mangle: false, // don't escape autolinked email address with HTML character references.
-		});
-		marked.use({ renderer });
+						const brokenPromise = new Promise((resolve) => {
+							import('linkinator')
+								.then(module => {
+									const checker = new module.LinkChecker()
+									checker.on("link", (link) => {
+										if (link.state === "BROKEN") {
+											brokenLinks++
+										}
+									})
+									resolve(checker.check({ path: route }))
+								});
+						})
 
-		const html = marked(markdown);
-		const links = htmlLinkExtractor(html);
-		return { links, anchors };
-		};
+						const markdownLinkCheck = require('markdown-link-check');
 
-		const markdown = readFileSync(route1, {encoding: 'utf8'});
-		const { links } = markdownLinkExtractor(markdown);
-		const markdownLinkCheck = require('markdown-link-check');
+						// console.log(links2[0].link)
 
-		links.forEach(link => {
-			markdownLinkCheck(link, function (err, results) {
-				if (err) {
-					console.error('Error', err)
-						return
-				}
-				 results.forEach(function (result) {
-					 console.log(route1, result.link, result.status, result.statusCode)
-				})
-			});
-		});
-	})
-route.parse(); */
+						// links2.link.forEach(link => {
+						for (j in links2) {
+							const linkText = links2[j].text
+							const linkLine = links2[j].line
+							markdownLinkCheck(links2[j].link, (err, results) => {
+								if (err) {
+									console.error('Error', err)
+									return
+								}
+								// console.log(results)
+								results.forEach(result => {
+									if ((validate === 0) && (stats === 0)) console.log(route, result.link, linkText, linkLine)
+									if ((validate === 1) && (stats === 0)) console.log(route, result.link, result.status, result.statusCode, linkText, linkLine)
+								})
+							})
+						}
+						// })
 
-(() => {
+						if (stats === 1) {
+							let duplicatesTotal = links.filter((item, index) => links.indexOf(item) !== index).length
+							console.log("Total: " + links.length)
+							console.log("Unique: " + (links.length - duplicatesTotal))
+							brokenPromise.then(() => {
+								if (validate === 1) {
+									console.log("Broken: " + brokenLinks)
+								}
+							})
+						}
+
+					}) // end readFile
+
+				} else {
+					const markdown2 = readdirSync(route, { encoding: 'utf8' })
+
+					const checker = new module.LinkChecker()
+
+					for (i in markdown2) {
+						// console.log(markdown2[i])
+						// let markdown = "no esta modificado"
+						const routeMarkdown = `${route}\\${markdown2[i]}`
+						readFile(routeMarkdown, { encoding: 'utf8' }, function (err, data) {
+							// markdown = data
+							// console.log(routeMarkdown)
+							// console.log(markdown2[i])
+							let { links } = markdownLinkExtractor(data)
+							// console.log(data)
+							let links2 = links.filter((item) => item.match(/^(https)+\:\/\//)) // quitamos links que no son https
+
+							let regex = /(?=\[(!\[.+?\]\(.+?\)|.+?)]\((https:\/\/[^\)]+)\))/gi
+
+							let links3 = [...data.matchAll(regex)].map((m) => ({ text: m[1], link: m[2], input: m["input"].split("\r\n") }))
+							// console.log(links3[0])
+							// console.log(links3[0]["link"])
+							for (j in links3) {
+								for (k in links3[0]["input"]) {
+									if (links3[0]["input"][k].includes(`[${links3[j]["text"]}](${links3[j]["link"]})`)) {
+										// console.log(`[${links3[j]["text"]}](${links3[j]["link"]})`)
+										// console.log(k)
+										links3[j].line = parseFloat(k)+1
+									}
+								}
+							}
+							// console.log(links3[0])
+							// const markdown2Step = markdown2[i]
+							// console.log(links2)	
+
+							if ((validate === 0) && (stats === 1)) {
+								let duplicatesTotal = links2.filter((item, index) => links2.indexOf(item) !== index).length
+								console.log(routeMarkdown)
+								console.log("  Total: " + links2.length)
+								console.log("  Unique: " + (links2.length - duplicatesTotal))
+								console.log("")
+							}
+
+							for (j in links3) {
+								const linkLine = links3[j].line
+								const linkText = links3[j].text
+
+								if ((validate === 0) && (stats === 0)) console.log(routeMarkdown, links3[j].link, linkText, linkLine)
+
+							}
+
+							for (k in links3) {
+
+								if ((validate === 1) && (stats === 0)) {									
+									// console.log(markdown2[i])
+									// console.log(links2[j]) 
+									
+									const linkLine = links3[k].line
+									const linkText = links3[k].text
+									Promise.resolve(links3[k].link)
+										.then((value) =>
+											new Promise((resolve) => {
+												// console.log(value)
+												// console.log(value[1])
+												// const result = checker.on("link", (value) => {
+												// console.log(link)
+												// })
+												const result = checker.check({ path: value });
+												// console.log(markdown2[i], result.links[0].url, result.links[0].state, result.links[0].status)
+												resolve(result)
+											})
+										)
+										.then((value) => {
+											// console.log(value)
+											console.log(routeMarkdown, value.links[0].url, value.links[0].state, value.links[0].status, linkText, linkLine);
+										})
+
+								}
+
+							}
+
+							if ((validate === 1) && (stats === 1)) {
+
+								let brokenLinks = 0
+
+								const brokenPromise = new Promise((resolve) => {
+
+									const checker = new module.LinkChecker()
+									checker.on("link", (link) => {
+										if (link.state === "BROKEN") {
+											brokenLinks++
+										}
+									})
+									resolve(checker.check({ path: links2[j] }))
+
+								})
+
+								brokenPromise.then(() => {
+									let duplicatesTotal = links.filter((item, index) => links.indexOf(item) !== index).length
+									console.log(routeMarkdown)
+									console.log("  Total: " + links.length)
+									console.log("  Unique: " + (links.length - duplicatesTotal))
+									console.log("  Broken: " + brokenLinks)
+									console.log("")
+								})
+
+							}
+
+						}) // end readFile						
+					} // end for markdown2					
+				} // end else
+			}) // end special import
+	}) // end commander
+
+program.parse(process.argv)
+
+/* (() => {
 	// console.log("Ingrese una ruta")
 	// init({ clear });
 
-	input.includes(`help`) && cli.showHelp(0);
+	input.includes(`mdLinks`) && cli.showHelp(0);
 
 	debug && log(flags);
 
-	/* const link = require('linkinator');
+	if (input.includes("mdLinks")) {
+		console.log("hola")
+	} 
 
-	console.log(link)
-
-	async function complex() {
-		// create a new `LinkChecker` that we'll use to run the scan.
-		const checker = new link.LinkChecker();
-
-		// Respond to the beginning of a new page being scanned
-
-		checker.on('pagestart', url => {
-			console.log(`Scanning ${url}`);
-		});
-
-		// After a page is scanned, check out the results!
-		checker.on('link', result => {
-
-			// check the specific url that was scanned
-			console.log(`  ${result.url}`);
-
-			// How did the scan go?  Potential states are `BROKEN`, `OK`, and `SKIPPED`
-			console.log(`  ${result.state}`);
-
-			// What was the status code of the response?
-			console.log(`  ${result.status}`);
-
-			// What page linked here?
-			console.log(`  ${result.parent}`);
-		});
-	} */
-	/*  	if (input.includes("hola@bye.com")) {
-			const empty = new Promise((resolve, reject) => {
-				resolve(flags.empty = true);
-				reject(console.log("Ingrese una ruta"))
-			});
-			empty.then(() => {
-				console.log("Ingrese una ruta")
-			})
-		} */
-	/* 	if (input.includes(``)) {
-			const empty = new Promise((resolve, reject) => {
-				resolve(flags.empty = true);
-				reject('Not a Success!')
-			});
-			empty.then(() => {
-				console.log("Ingrese una ruta")
-			})
-		}  */
-
-	/* 	if (input.includes('validate')) {
-			const validating = new Promise((resolve, reject) => {
-				resolve(flags.validate = true);
-				reject('Not a Success!')
-			});
-			validating.then(() => {
-				console.log("flags.validate = "+flags.validate)
-			})
-		}
-	
-			if (input.includes('stats')) {
-			const stating = new Promise((resolve, reject) => {
-				resolve(flags.stats = true);
-				reject('Not a Success!')
-			});
-			stating.then(() => {
-				console.log("flags.stats = "+flags.stats)
-			})		
-		} */
-
-});
-
-/* const { readFileSync } = require('fs');
-const markdownLinkExtractor = require('markdown-link-extractor');
-const markdown = readFileSync(route2, {encoding: 'utf8'});
-const { links } = markdownLinkExtractor(markdown);
-const  markdownLinkCheck = require('markdown-link-check');
-
-'use strict'  
-
-links.forEach(link => {
-	markdownLinkCheck(link, function (err, results) {
-	if (err) {
-		console.error('Error', err)
-		return
-	}
-	results.forEach(function (result) {
-		console.log(result.link, result.status, result.statusCode)
-	})
-	});
-}); */
-
-
-/* 'use strict';
-
-var markdownLinkCheck = require('markdown-link-check');
-
-markdownLinkCheck('(https://github.com/tcort/markdown-link-check/blob/master/README.md)', function (err, results) {
-		if (err) {
-				console.error('Error', err);
-				return;
-		}
-		results.forEach(function (result) {
-				console.log('%s is %s', result.link, result.status);
-				console.log("")
-		});
-}); */
+}) */
 
 /* const regex0 = (/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/)	// email
 const regex1 = (/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&=]*)/) // con https
@@ -214,3 +259,5 @@ const regex7 = (/(\.\/)[-a-zA-Z0-9@:%._\+~#=].*\.(md)$/) // ./ + filename + md e
 const regex8 = (/(https?:\/\/[-a-zA-Z0-9@:%._\+~#=]).*([-a-zA-Z0-9@:%._\+~#=]\.md)$/) // https + filename + .md
 const regex9 = (/^(https?:\/\/[-a-zA-Z0-9@:%._\+~#=])/) // https + filename
 const regex10 = (/[-a-zA-Z0-9@:%._\+~#=]\/[-a-zA-Z0-9@:%._\+~#=]+\.(md)$/) // filename + / + filename + .md */
+
+// module.exports = mdLinks

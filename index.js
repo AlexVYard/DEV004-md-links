@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 
-
 /**
  * md-links
  * check links
@@ -15,14 +14,20 @@
 // const init = require('./utils/init');
 /* const meow = require('meow');
 const meowHelp = require('cli-meow-help'); */
-
+/* const {mdlinks} = require('commander');
+const program = mdlinks(); */
 const program = require('commander');
 // const options = program.opts();
 
 // import LinkChecker from 'linkinator';
 
+/* program
+  .name('mdlinks')
+  .description('CLI to some JavaScript string utilities')
+  .version('0.8.0'); */
+
 program
-	.argument('<route1>', 'connect to the specified server')
+	.argument('<route>', 'connect to the specified server')
 	.option('-v, --validate', 'Validate links, use with a route')
 	.option('-s, --stats', 'Show stats, use with a route')
 	.action((route, options) => {
@@ -233,7 +238,9 @@ program
 	}) // end commander
 
 program.parse(process.argv)
-
+// console.log('process.argv:', process.argv);
+module.exports = program
+// console.log('process.argv:', process.argv);
 /* (() => {
 	// console.log("Ingrese una ruta")
 	// init({ clear });
@@ -260,4 +267,3 @@ const regex8 = (/(https?:\/\/[-a-zA-Z0-9@:%._\+~#=]).*([-a-zA-Z0-9@:%._\+~#=]\.m
 const regex9 = (/^(https?:\/\/[-a-zA-Z0-9@:%._\+~#=])/) // https + filename
 const regex10 = (/[-a-zA-Z0-9@:%._\+~#=]\/[-a-zA-Z0-9@:%._\+~#=]+\.(md)$/) // filename + / + filename + .md */
 
-// module.exports = mdLinks

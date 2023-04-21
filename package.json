@@ -1,6 +1,6 @@
 {
   "name": "@alexvyard/md-links",
-  "description": "check links inside markdown files",
+  "description": "Check links inside markdown files",
   "version": "0.0.24",
   "license": "UNLICENSED",
   "bin": {
@@ -18,7 +18,6 @@
     "format": "prettier --write \"./**/*.{js,json}\""
   },
   "dependencies": {
-
     "cli-alerts": "^1.2.2",
     "cli-handle-error": "^4.4.0",
     "cli-handle-unhandled": "^1.1.1",
@@ -32,6 +31,11 @@
     "meow": "^9.0.0"
   },
   "devDependencies": {
+    "eslint": "^8.38.0",
+    "eslint-config-standard": "^17.0.0",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-n": "^15.7.0",
+    "eslint-plugin-promise": "^6.1.1",
     "prettier": "^2.8.5"
   },
   "main": "index.js",
@@ -46,4 +50,4 @@
     "url": "https://github.com/AlexVYard/DEV004-md-links/issues"
   },
   "homepage": "https://github.com/AlexVYard/DEV004-md-links#readme"
-  }
+}

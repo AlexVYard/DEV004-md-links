@@ -27,12 +27,10 @@ const program = require('commander');
   .version('0.8.0'); */
 
 program
-	.argument('<route>', 'connect to the specified server')
+	.argument('[route]', 'Markdown file or dir')
 	.option('-v, --validate', 'Validate links, use with a route')
 	.option('-s, --stats', 'Show stats, use with a route')
 	.action((route, options) => {
-
-		console.log("") // linea extra para que se vea bonito
 
 		import('linkinator')
 			.then(module => {
@@ -43,8 +41,23 @@ program
 
 				const validate = options.validate ? 1 : 0;
 				const stats = options.stats ? 1 : 0;
+					
+				if ( route === undefined ) {
 
-				if (route.match(/(\.md)$/)) {
+					console.log("")
+					console.log("Usage: md-Links [route] [options]")
+					console.log("")
+					console.log("Options:")
+					console.log("  -v, --validate  Validate links, use with a route")
+					console.log("  -s, --stats     Show stats, use with a route")
+					console.log("")
+					console.log("Example call:")
+					console.log("  $ md-Links README.md --validate")
+					console.log("")
+					console.log("Please insert a route")
+					console.log("")
+					
+				} else if (route.match(/(\.md)$/)) {
 					// const markdown = readFileSync(route, { encoding: 'utf8' });	// string del archivo markdown
 					// let markdown = "no esta modificado"
 					readFile(route, { encoding: 'utf8' }, function (err, data) {
@@ -163,7 +176,6 @@ program
 								console.log(routeMarkdown)
 								console.log("  Total: " + links2.length)
 								console.log("  Unique: " + (links2.length - duplicatesTotal))
-								console.log("")
 							}
 
 							for (j in links3) {

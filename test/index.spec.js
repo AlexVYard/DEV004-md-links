@@ -1,5 +1,5 @@
 const mdLinks = require('../index.js')
-console.log("mdLinks", mdLinks)
+// console.log("mdLinks", mdLinks)
 
 describe('dataFunctions', () => {
   it('is an object', () => {

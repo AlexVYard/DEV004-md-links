@@ -17,8 +17,7 @@
   "scripts": {
     "eslint": "eslint --ext .js test/",
     "_pretest": "npm run eslint",
-    "test": "jest",
-    "format": "prettier --write \"./**/*.{js,json}\""
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
   },
   "dependencies": {
     "cli-alerts": "^1.2.2",

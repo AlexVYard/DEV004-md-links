@@ -1,8 +1,13 @@
 # NPM #
 ##########
 # Ignore all directories called node_modules in current folder and any subfolders.
+.DS_Store
+*.swp
+coverage/
 node_modules/
-/node_modules/
+.yarn.lock
+package-lock.json
+dist/
 
 # Packages #
 ############

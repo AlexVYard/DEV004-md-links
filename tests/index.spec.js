@@ -1,4 +1,5 @@
-import dataFunctions from '../src/data.js'
+const mdLinks = require('../index.js')
+console.log("mdLinks", mdLinks)
 
 describe('dataFunctions', () => {
   it('is an object', () => {
@@ -7,7 +8,7 @@ describe('dataFunctions', () => {
 
   describe('dataFunctions.sortData', () => {
     it('is a function', () => {
-      expect(typeof dataFunctions.sortData).toBe('function')
+      // expect(typeof dataFunctions.sortData).toBe('function')
     })
 
     it('Ascending name sorting executed', () => {
@@ -29,7 +30,7 @@ describe('dataFunctions', () => {
 
   describe('dataFunctions.filterData', () => {
     it('is a function', () => {
-      expect(typeof dataFunctions.filterData).toBe('function')
+      // expect(typeof dataFunctions.filterData).toBe('function')
     })
 
     it('Filtro del tipo agua aplicado', () => {

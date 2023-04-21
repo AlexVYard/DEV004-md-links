@@ -1,30 +1,6 @@
 #!/usr/bin/env node
 
-/**
- * md-links
- * check links
- *
- * @author Alexandra F. Vega <https://github.com/AlexVYard/>
- */
-
-// Option* validat = app.add_flag("--validate");
-
-// CLI11_PARSE(app, argv, argc);
-
-// const init = require('./utils/init');
-/* const meow = require('meow');
-const meowHelp = require('cli-meow-help'); */
-/* const {mdlinks} = require('commander');
-const program = mdlinks(); */
 const program = require('commander')
-// const options = program.opts();
-
-// import LinkChecker from 'linkinator';
-
-/* program
-  .name('mdlinks')
-  .description('CLI to some JavaScript string utilities')
-  .version('0.8.0'); */
 
 program
   .argument('[route]', 'Markdown file or dir')

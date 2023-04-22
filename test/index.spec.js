@@ -1,9 +1,9 @@
-const mdLinks = require('../index.js')
-// console.log("mdLinks", mdLinks)
+const program = require('../index.js')
+console.log(program.Command)
 
-describe('dataFunctions', () => {
-  it('is an object', () => {
-    expect(typeof dataFunctions).toBe('object')
+describe('program', () => {
+  test('is an object', () => {
+    expect(program.Argument).toBe('object')
   })
 
   describe('dataFunctions.sortData', () => {

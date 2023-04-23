@@ -1,44 +1,98 @@
-const program = require('../index.js')
-console.log(program.Command)
+const mdLinks = require('../index.js')
+const exec = require('child_process').exec
+// console.log(mdLinks)
 
-describe('program', () => {
+describe('mdLinks', () => {
   test('is an object', () => {
-    expect(program.Argument).toBe('object')
+    expect(typeof mdLinks).toBe("object")
   })
 
-  describe('dataFunctions.sortData', () => {
-    it('is a function', () => {
-      // expect(typeof dataFunctions.sortData).toBe('function')
+  describe('node ', () => {
+    test('no route', async () => {
+      const result = await run(['', ''], '..')
+      expect(result.code).toBe(0)
+    })
+  })   
+
+  describe('node README.md', () => {
+    test('no option', async () => {
+      const result = await run(['', 'README.md'], '..')
+      expect(result.code).toBe(0)
+    })    
+
+    test('--validate', async () => {
+      const result = await run(['--validate', 'README.md'], '..')
+      expect(result.code).toBe(0)
     })
 
-    it('Ascending name sorting executed', () => {
-      // expect(dataFunctions.sortData([{ "name": "a" }, { "name": "c" }, { "name": "b" }], "name", false)).toStrictEqual([{ "name": "a" }, { "name": "b" }, { "name": "c" }])
+    test('--stats', async () => {
+      const result = await run(['--stats', 'README.md'], '..')
+      expect(result.code).toBe(0)
     })
 
-    it('Descending name sorting executed', () => {
-      // expect(dataFunctions.sortData([{ "name": "a" }, { "name": "c" }, { "name": "b" }], "name", true)).toStrictEqual([{ "name": "c" }, { "name": "b" }, { "name": "a" }])
-    })
-
-    it('Ascending number sorting executed', () => {
-      // expect(dataFunctions.sortData([{ "num": "1" }, { "num": "3" }, { "num": "2" }], "num", false)).toStrictEqual([{ "num": "1" }, { "num": "2" }, { "num": "3" }])
-    })
-
-    it('Descending number sorting executed', () => {
-      // expect(dataFunctions.sortData([{ "num": "1" }, { "num": "3" }, { "num": "2" }], "num", true)).toStrictEqual([{ "num": "3" }, { "num": "2" }, { "num": "1" }])
+    test('-v -s', async () => {
+      const result = await run(['-v -s', 'README.md'], '..')
+      expect(result.code).toBe(0)
     })
   })
 
-  describe('dataFunctions.filterData', () => {
+  describe('node dir', () => {
+    test('no option', async () => {
+      const result = await run(['', 'dir'], '.')
+      expect(result.code).toBe(0)
+    })    
+
+    test('--validate', async () => {
+      const result = await run(['--validate', 'dir'], '.')
+      expect(result.code).toBe(0)
+    })
+
+    test('--stats', async () => {
+      const result = await run(['--stats', 'dir'], '.')
+      expect(result.code).toBe(0)
+    })
+
+    test('-v -s', async () => {
+      const result = await run(['-v -s', 'dir'], '.')
+      expect(result.code).toBe(0)
+    })
+  })
+
+  describe('errors', () => {
+    test('invalid route', async () => {
+      const result = await run(['', 'README.dm'], '.')
+      expect(result.code).toBe(1)
+    })      
+
+    test('invalid option', async () => {
+      const result = await run(['--invalidoption', 'README.md'], '.')
+      expect(result.code).toBe(1)
+    })
+
+    /* test('--stats', async () => {
+      const result = await run(['--stats', 'dir'], '.')
+      expect(result.code).toBe(0)
+    }) */
+  })
+
+  /* describe('dataFunctions.filterData', () => {
     it('is a function', () => {
       // expect(typeof dataFunctions.filterData).toBe('function')
     })
-
-    it('Filtro del tipo agua aplicado', () => {
-      // expect(dataFunctions.filterData([{ "type": "planta" }, { "type": "fuego" }, { "type": "agua" }], "fuego")).toStrictEqual([{ "type": "fuego" }])
-    })
-
-    it('Filtro del tipo fuego aplicado', () => {
-      // expect(dataFunctions.filterData([{ "type": "planta" }, { "type": "fuego" }, { "type": "agua" }], "agua")).toStrictEqual([{ "type": "agua" }])
-    })
-  })
+  }) */
 })
+
+function run (args, cwd) {
+  return new Promise(resolve => {
+    exec(`md-links ${args.join(' ')}`,
+      { cwd },
+      (error, stdout, stderr) => {
+        resolve({
+          code: error && error.code ? error.code : 0,
+          error,
+          stdout,
+          stderr
+        })
+      })
+  })
+}

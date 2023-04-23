@@ -38,7 +38,6 @@ program
             if (data === undefined) {
               console.log("Input invalid")
             } else {
-              console.log("Checking links")
               if (err) {
                 console.log("error")
               }
@@ -63,7 +62,7 @@ program
                 const linkText = links2[i].text
                 const linkLine = links2[i].line
                 // console.log(scripts.checker)
-                scripts.checker(route, links2[i].link, linkText, linkLine, validate, stats)    
+                scripts.checker(route, links2[i].link, linkText, linkLine, validate, stats)
               }
               // console.log(links2[0])
 
@@ -75,28 +74,34 @@ program
               let brokenLinks = 0
 
               const brokenPromise = new Promise((resolve) => {
-                import('linkinator')
-                  .then(module => {
-                    const checker = new module.LinkChecker()
-                    checker.on("link", (link) => {
-                      if (link.state === "BROKEN") {
-                        brokenLinks++
-                      }
-                    })
-                    resolve(checker.check({ path: route, concurrency: 3, timeout: 10 }))
-                  })
+                const checker = new module.LinkChecker()
+                checker.on("link", (link) => {
+                  if (link.state === "BROKEN") {
+                    // console.log(link, "link roto encontrado")
+                    brokenLinks++
+                  }
+                })
+                resolve(checker.check({ path: route, concurrency: 3, timeout: 10 }))
               })
 
-              // console.log(links2[0].link)
+              const duplicatesTotal = links2.filter((item, index) => links2.indexOf(item) !== index).length
 
-              if (stats === 1) {
-                const duplicatesTotal = links2.filter((item, index) => links2.indexOf(item) !== index).length
-                console.log("Total: " + links2.length)
-                console.log("Unique: " + (links2.length - duplicatesTotal))
+              if ((validate === 0) && (stats === 1)) {
+                console.log("")
+                console.log(route)
+                console.log("  Total: " + links2.length)
+                console.log("  Unique: " + (links2.length - duplicatesTotal))
+                console.log("")
+              }
+
+              if ((validate === 1) && (stats === 1)) {
                 brokenPromise.then(() => {
-                  if (validate === 1) {
-                    console.log("Broken: " + brokenLinks)
-                  }
+                  console.log("")
+                  console.log(route)
+                  console.log("  Total: " + links2.length)
+                  console.log("  Unique: " + (links2.length - duplicatesTotal))
+                  console.log("  Broken: " + brokenLinks)
+                  console.log("")
                 })
               }
             }
@@ -122,7 +127,7 @@ program
                 // console.log(markdown2[i])
                 const { links } = markdownLinkExtractor(data)
                 // console.log(data)
-                const links2 = links.filter((item) => item.match(/^(https:\/\/)/)) // quitamos links que no son https
+                // const links2 = links.filter((item) => item.match(/^(https:\/\/)/)) // quitamos links que no son https
 
                 const regex = /(?=\[(!\[.+?\]\(.+?\)|.+?)]\((https:\/\/[^)]+)\))/gi
 
@@ -144,36 +149,39 @@ program
                   if ((validate === 1) && (stats === 0)) {
                     // console.log(markdown2[i])
                     // console.log(links2[j])
-                    scripts.checker(routeMarkdown, links3[j].link, linkText, linkLine, validate, stats)                    
+                    scripts.checker(routeMarkdown, links3[j].link, linkText, linkLine, validate, stats)
                   }
                 }
                 // console.log(links3[0])
                 // const markdown2Step = markdown2[i]
                 // console.log(links2)
 
+                let brokenLinks = 0
+
+                const brokenPromise = new Promise((resolve) => {
+                  const checker = new module.LinkChecker()
+                  checker.on("link", (link) => {
+                    if (link.state === "BROKEN") {
+                      // console.log(link, "link roto encontrado")
+                      brokenLinks++
+                    }
+                  })
+                  resolve(checker.check({ path: `${route}\\${markdown2[i]}`, concurrency: 3, timeout: 10 }))
+                })
+
+                const duplicatesTotal = links.filter((item, index) => links.indexOf(item) !== index).length
+
                 if ((validate === 0) && (stats === 1)) {
-                  const duplicatesTotal = links2.filter((item, index) => links2.indexOf(item) !== index).length
+                  console.log("")
                   console.log(routeMarkdown)
-                  console.log("  Total: " + links2.length)
-                  console.log("  Unique: " + (links2.length - duplicatesTotal))
+                  console.log("  Total: " + links.length)
+                  console.log("  Unique: " + (links.length - duplicatesTotal))
+                  console.log("")
                 }
 
                 if ((validate === 1) && (stats === 1)) {
-                  let brokenLinks = 0
-
-                  const brokenPromise = new Promise((resolve) => {
-                    const checker = new module.LinkChecker()
-                    checker.on("link", (link) => {
-                      if (link.state === "BROKEN") {
-                        // console.log(link, "link roto encontrado")
-                        brokenLinks++
-                      }
-                    })
-                    resolve(checker.check({ path: links2, concurrency: 3, timeout: 10 }))
-                  })
-
                   brokenPromise.then(() => {
-                    const duplicatesTotal = links.filter((item, index) => links.indexOf(item) !== index).length
+                    console.log("")
                     console.log(routeMarkdown)
                     console.log("  Total: " + links.length)
                     console.log("  Unique: " + (links.length - duplicatesTotal))

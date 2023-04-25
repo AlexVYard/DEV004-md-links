@@ -2,20 +2,17 @@
 
 ## Índice
 
-* [1. Preámbulo](#1-preámbulo)
+* [1. Instalación](#1-instalación)
 * [2. Resumen del proyecto](#2-resumen-del-proyecto)
-* [3. Objetivos de aprendizaje](#3-objetivos-de-aprendizaje)
-* [4. Consideraciones generales](#4-consideraciones-generales)
-* [5. Criterios de aceptación mínimos del proyecto](#5-criterios-de-aceptación-mínimos-del-proyecto)
-* [6. Entregables](#6-entregables)
-* [7. Hacker edition](#7-hacker-edition)
-* [8. Pistas, tips y lecturas complementarias](#8-pistas-tips-y-lecturas-complementarias)
-* [9. Checklist](#9-checklist)
-* [10. Achicando el problema](#10-achicando-el-problema)
+* [3. Herramientas usadas](#3-herramientas-usadas)
+* [4. Librerias externas](#4-librerias-externas)
+* [5. Caracteristicas principales](#5-caracteristicas-principales)
+* [6. Archivos del proyecto](#6-archivos-del-proyecto)
+* [7. Referencias](#7-referencias)
 
 ***
 
-## 1. Instalaci+on
+## 1. Instalación
 
 ```js
 $ npm install @alexvyard/md-links
@@ -43,7 +40,7 @@ Esta libreria nos permitira checkear si nuestros links dentro de los archivos Ma
 * "markdown-link-check"
 * "markdown-link-extractor"
 
-## 5. Caracteristicas principales*
+## 5. Caracteristicas principales
 
 * Podemos ejecutar el codigo a traves de la terminal usando "md-links" en conjunto con una ruta, ya sea absoluta o relativa o un directorio o un solo archivo.
 ```js

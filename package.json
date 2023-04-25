@@ -1,7 +1,7 @@
 {
   "name": "@alexvyard/md-links",
   "description": "Check links inside markdown files",
-  "version": "0.0.26",
+  "version": "0.0.27",
   "license": "UNLICENSED",
   "bin": {
     "md-links": "index.js"
@@ -20,6 +20,7 @@
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
   },
   "dependencies": {
+    "chalk": "^5.2.0",
     "commander": "^10.0.1",
     "gulp": "^4.0.2",
     "linkinator": "^4.1.2",

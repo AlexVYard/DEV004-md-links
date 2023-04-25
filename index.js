@@ -60,7 +60,12 @@ program
             const linkText = links2[i].text
             const linkLine = links2[i].line
             // console.log(scripts.checker)
-            scripts.checker(route, links2[i].link, linkText, linkLine, validate, stats)
+            if ((validate === 0) && (stats === 0)) {
+              console.log(route, links2[i].link, linkText, linkLine)
+            }
+            if ((validate === 1) && stats === 0) {
+              scripts.checker(route, links2[i].link, linkText, linkLine)
+            }
           }
           // console.log(links2[0])
 
@@ -72,6 +77,7 @@ program
           const duplicatesTotal = links2.filter((item, index) => links2.indexOf(item) !== index).length
 
           if ((validate === 0) && (stats === 1)) {
+            // console.log(links2)
             scripts.stats(route, links2, duplicatesTotal)
           }
 
@@ -83,6 +89,7 @@ program
     } else {
       try {
         const markdown = readdirSync(route, { encoding: 'utf8' })
+        // console.log(markdown)
         const markdown2 = markdown.filter((item) => item.match(/(\.md)$/)) // filtramos los archivos que no son md
         // console.log("markdown2", markdown2.length)
         // const checker = new module.LinkChecker()
@@ -124,7 +131,7 @@ program
                 if ((validate === 1) && (stats === 0)) {
                   // console.log(markdown2[i])
                   // console.log(links2[j])
-                  scripts.checker(routeMarkdown, links3[j].link, linkText, linkLine, validate, stats)
+                  scripts.checker(routeMarkdown, links3[j].link, linkText, linkLine)
                 }
               }
               // console.log(links3[0])

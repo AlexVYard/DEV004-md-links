@@ -51,14 +51,14 @@ $ md-links
 ```js
 $ md-links
 
-Usage: md-Links [route] [options]
+Usage: md-links [route] [options]
 
 Options:
   -v, --validate  Validate links, use with a route
   -s, --stats     Show stats, use with a route
 
 Example call:
-  $ md-Links README.md --validate
+  $ md-links README.md --validate
 
 Please insert a route
 ```
